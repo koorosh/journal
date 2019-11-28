@@ -17,23 +17,25 @@ const typeDefs = gql`
         id: ID!
         firstName: String!
         lastName: String!
-        group: Group!
+        phone: String
     }
 
     type Group {
         id: ID!
         name: String!
+        year: Int!
     }
 
     type Mutation {
         createStudent(
             firstName: String!
             lastName: String!
-            groupId: String!
+            phone: String
         ): Student
         
         createGroup(
             name: String!
+            year: Int!
         ): Group
     }
 

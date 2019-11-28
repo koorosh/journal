@@ -13,10 +13,11 @@ export interface Student {
   id: string
   firstName: string
   lastName: string
-  groupId: string
+  phone: string
 }
 
 export interface Group {
   id: string
   name: string
+  year: number
 }

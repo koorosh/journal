@@ -3,43 +3,54 @@ import SqlDatasource from './sql-datasource'
 import {Student} from '../types'
 
 export class StudentDatasource extends SqlDatasource {
-  selectAll() {
+  selectAll(): Promise<Array<Student>> {
     return this.db.from('students')
-      .then(students => students.map(StudentDatasource.studentReducer))
-  }
-
-  findById(id: string) {
-    return this.db
-      .from('students')
-      .innerJoin('groups', 'students.group_id', '=', 'groups.id')
-      .where({'students.id': id})
-      .first()
-      .then(StudentDatasource.studentReducer)
-  }
-
-  create({firstName, lastName, groupId}: Partial<Student>): Promise<Student | null> {
-    return this.db.table('students').insert({
-      id: uuid(),
-      first_name: firstName,
-      last_name: lastName,
-      group_id: groupId,
-    })
-      .returning('*')
+      .innerJoin('persons', 'students.person_id', '=', 'persons.id')
       .then(records => {
-        if (records.length > 0) {
-          return StudentDatasource.studentReducer(records[0])
-        }
-        return null
+        return records.map(record => ({
+          id: record.id,
+          firstName: record.first_name,
+          lastName: record.last_name,
+          phone: record.phone,
+        }))
       })
   }
 
-  static studentReducer(studentRecord: any): Student {
-    const { id, first_name, last_name, group_id } = studentRecord
-    return {
-      id: id,
-      firstName: first_name,
-      lastName: last_name,
-      groupId: group_id
-    }
+  findById(id: string): Promise<Student> {
+    return this.db.from('students')
+      .innerJoin('persons', 'students.person_id', '=', 'persons.id')
+      .where({
+        ['students.id']: id,
+      })
+      .first()
+      .then(record => ({
+        id: record.id,
+        firstName: record.first_name,
+        lastName: record.last_name,
+        phone: record.phone,
+      }))
+  }
+
+  create({firstName, lastName, phone}: Partial<Student>): Promise<string> {
+    return this.db.transaction(async (trx) => {
+      const personId = uuid()
+      const studentId = uuid()
+
+      await trx.table('persons')
+        .insert({
+          id: personId,
+          first_name: firstName,
+          last_name: lastName,
+          phone,
+        })
+
+      await trx.table('students')
+        .insert({
+          id: studentId,
+          person_id: personId,
+        })
+
+      return studentId
+    })
   }
 }

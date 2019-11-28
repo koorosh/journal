@@ -3,7 +3,7 @@ import {Group} from '../types'
 import uuid from 'uuid'
 
 export class GroupDatasource extends SqlDatasource {
-  selectAll() {
+  selectAll(): Promise<Array<Group>> {
     return this.db.from('groups')
       .then(records => records.map(GroupDatasource.groupReducer))
   }
@@ -18,27 +18,21 @@ export class GroupDatasource extends SqlDatasource {
       .then(GroupDatasource.groupReducer)
   }
 
-  create({name}: Partial<Group>): Promise<Group | null> {
-    return this.db.table('groups').insert({
-      id: uuid(),
+  async create({name}: Partial<Group>): Promise<string> {
+    const id = uuid()
+    await this.db.table('groups').insert({
+      id,
       name
     })
-      .returning('*')
-      .then(records => {
-        if (records.length > 0) {
-          return GroupDatasource.groupReducer(records[0])
-        }
-        else {
-          return null
-        }
-      })
+    return id
   }
 
   static groupReducer(groupRecord: any): Group {
-    const { id, name } = groupRecord
+    const { id, name, year } = groupRecord
     return {
       id: id,
       name: name,
+      year
     }
   }
 }

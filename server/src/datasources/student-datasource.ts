@@ -1,6 +1,6 @@
 import uuid from 'uuid'
 import SqlDatasource from './sql-datasource'
-import {Student} from '../types'
+import { Student } from '../types'
 
 export class StudentDatasource extends SqlDatasource {
   selectAll(): Promise<Array<Student>> {
@@ -31,7 +31,29 @@ export class StudentDatasource extends SqlDatasource {
       }))
   }
 
-  create({firstName, lastName, phone}: Partial<Student>): Promise<string> {
+  studentsInGroup(groupId: string): Promise<Student[]> {
+    return this.db.select([
+      'students.id',
+      'persons.first_name',
+      'persons.last_name',
+      'persons.phone',
+    ])
+      .from('students')
+      .innerJoin('persons', 'students.person_id', '=', 'persons.id')
+      .innerJoin('group_students', 'group_students.student_id', '=', 'students.id')
+      .where({
+        ['group_students.group_id']: groupId,
+      })
+      .then(records => (
+        records.map((record) => ({
+          id: record.id,
+          firstName: record.first_name,
+          lastName: record.last_name,
+          phone: record.phone,
+        }))))
+  }
+
+  create({ firstName, lastName, phone }: Partial<Student>): Promise<string> {
     return this.db.transaction(async (trx) => {
       const personId = uuid()
       const studentId = uuid()

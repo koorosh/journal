@@ -18,6 +18,16 @@ export class GroupDatasource extends SqlDatasource {
       .then(GroupDatasource.groupReducer)
   }
 
+  async findByYear(year: number): Promise<Group[]> {
+    return this.db.from('groups')
+      .where({ year })
+  }
+
+  async groupsThisYear(): Promise<Group[]> {
+    const year = new Date().getFullYear()
+    return this.findByYear(year)
+  }
+
   async create({name}: Partial<Group>): Promise<string> {
     const id = uuid()
     await this.db.table('groups').insert({

@@ -33,6 +33,25 @@ export async function seed(knex: Knex): Promise<any> {
     year: faker.random.arrayElement([2017, 2018, 2019])
   }))
 
+  const subjectNames = [
+    'Українська мова',
+    'Українська література',
+    'Історія України',
+    'Алгебра',
+    'Геометрія',
+    'Малювання',
+    'Фізичне виховання',
+    'Трудове навчання',
+    'Географія',
+    'Біологія',
+    'Політологія',
+  ]
+
+  const subjects = subjectNames.map(subject => ({
+    id: uuid(),
+    name: subject,
+  }))
+
   type Person = typeof persons[0]
   type Student = typeof students[0]
   type Group = typeof groups[0]
@@ -60,8 +79,11 @@ export async function seed(knex: Knex): Promise<any> {
       .then(() => knex(tableName).insert(data))
   }
 
-  return populateTable('persons', persons)
-    .then(() => populateTable('students', students))
-    .then(() => populateTable('groups', groups))
-    .then(() => populateTable('group_students', groupStudents))
+  return Promise.all([
+    populateTable('persons', persons)
+      .then(() => populateTable('students', students))
+      .then(() => populateTable('groups', groups))
+      .then(() => populateTable('group_students', groupStudents)),
+    populateTable('subjects', subjects),
+  ])
 }

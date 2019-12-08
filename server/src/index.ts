@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server'
 
 import typeDefs from './schema'
-import {GroupDatasource, StudentDatasource} from './datasources'
+import { AttendanceDatasource, GroupDatasource, StudentDatasource, SubjectDatasource } from './datasources'
 import resolvers from './resolvers'
 
 const server = new ApolloServer({
@@ -10,6 +10,8 @@ const server = new ApolloServer({
   dataSources: () => ({
     students: new StudentDatasource(),
     groups: new GroupDatasource(),
+    subjects: new SubjectDatasource(),
+    attendance: new AttendanceDatasource(),
   }),
 })
 

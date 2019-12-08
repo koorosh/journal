@@ -13,7 +13,19 @@ services:
       - pg_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_ERLANG_COOKIE: SWQOKODSQALRPCLNMEQG
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - 15672:15672
+      - 5672:5672
 
 volumes:
   pg_data:
+
 

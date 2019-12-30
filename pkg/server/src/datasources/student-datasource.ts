@@ -4,20 +4,39 @@ import { Student } from '../types'
 
 export class StudentDatasource extends SqlDatasource {
   selectAll(): Promise<Array<Student>> {
-    return this.db.from('students')
+    return this.db
+      .select([
+        'students.id',
+        'persons.id AS person_id',
+        'persons.first_name',
+        'persons.last_name',
+        'persons.phone',
+      ])
+      .from('students')
       .innerJoin('persons', 'students.person_id', '=', 'persons.id')
       .then(records => {
         return records.map(record => ({
           id: record.id,
-          firstName: record.first_name,
-          lastName: record.last_name,
-          phone: record.phone,
+          person: {
+            id: record.person_id,
+            firstName: record.first_name,
+            lastName: record.last_name,
+            phone: record.phone,
+          }
         }))
       })
   }
 
   findById(id: string): Promise<Student> {
-    return this.db.from('students')
+    return this.db
+      .select([
+        'students.id',
+        'persons.id AS person_id',
+        'persons.first_name',
+        'persons.last_name',
+        'persons.phone',
+      ])
+      .from('students')
       .innerJoin('persons', 'students.person_id', '=', 'persons.id')
       .where({
         ['students.id']: id,
@@ -25,15 +44,19 @@ export class StudentDatasource extends SqlDatasource {
       .first()
       .then(record => ({
         id: record.id,
-        firstName: record.first_name,
-        lastName: record.last_name,
-        phone: record.phone,
+        person: {
+          id: record.person_id,
+          firstName: record.first_name,
+          lastName: record.last_name,
+          phone: record.phone,
+        }
       }))
   }
 
   studentsInGroup(groupId: string): Promise<Student[]> {
     return this.db.select([
       'students.id',
+      'persons.id AS person_id',
       'persons.first_name',
       'persons.last_name',
       'persons.phone',
@@ -47,13 +70,16 @@ export class StudentDatasource extends SqlDatasource {
       .then(records => (
         records.map((record) => ({
           id: record.id,
-          firstName: record.first_name,
-          lastName: record.last_name,
-          phone: record.phone,
+          person: {
+            id: record.person_id,
+            firstName: record.first_name,
+            lastName: record.last_name,
+            phone: record.phone,
+          }
         }))))
   }
 
-  create({ firstName, lastName, phone }: Partial<Student>): Promise<string> {
+  create({ person: {firstName, lastName, phone }}: Partial<Student>): Promise<string> {
     return this.db.transaction(async (trx) => {
       const personId = uuid()
       const studentId = uuid()

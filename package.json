@@ -3,5 +3,12 @@
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
-  "workspaces": ["pkg/*"]
+  "workspaces": [
+    "pkg/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^12.12.14",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
+  }
 }

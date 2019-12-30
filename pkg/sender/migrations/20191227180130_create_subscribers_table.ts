@@ -1,14 +1,12 @@
 import Knex from 'knex'
 
-const tableName = 'attendances'
+const tableName = 'subscribers'
 
 export function up(knex: Knex): Knex.SchemaBuilder {
   return knex.schema.createTable(tableName, t => {
     t.uuid('id').primary()
-    t.uuid('group_id').references('id').inTable('groups')
-    t.uuid('subject_id').references('id').inTable('subjects')
-    t.date('date')
-    t.integer('lesson_no')
+    t.string('subscriber_id').unique()
+    t.boolean('is_active').defaultTo(true)
   })
 }
 

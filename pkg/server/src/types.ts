@@ -1,10 +1,27 @@
-import { AttendanceDatasource, GroupDatasource, StudentDatasource, SubjectDatasource } from './datasources'
+import {
+  AbsenceDatasource,
+  GroupDatasource,
+  ParentDatasource,
+  StudentDatasource,
+  SubjectDatasource,
+  PersonDatasource,
+  Publisher,
+} from './datasources'
+
+export type ID = string
+
+export interface Record {
+  id: ID
+}
 
 export interface DatasourceMap {
   students: StudentDatasource,
   groups: GroupDatasource,
   subjects: SubjectDatasource,
-  attendance: AttendanceDatasource,
+  absence: AbsenceDatasource,
+  parents: ParentDatasource,
+  persons: PersonDatasource,
+  publisher: Publisher
 }
 
 export interface Context {
@@ -15,9 +32,7 @@ export type WithoutId<T> = Omit<T, 'id'>
 
 export interface Student {
   id: string
-  firstName: string
-  lastName: string
-  phone: string
+  person?: Person
 }
 
 export interface Group {
@@ -31,11 +46,25 @@ export interface Subject {
   name: string
 }
 
-export interface Attendance {
+export enum AbsenceReason {
+  UNKNOWN = 0,
+  ILLNESS = 1,
+  PERSONAL = 2,
+}
+
+export interface Absence {
   id: string
+  studentId: string
   subjectId: string
   groupId: string
   date: Date
   lessonNo: number
-  absentStudentIds: string[]
+  reason: AbsenceReason
+}
+
+export interface Person {
+  id: string
+  firstName: string
+  lastName: string
+  phone: string
 }

@@ -4,12 +4,14 @@ const typeDefs = gql`
   type Query {
     students: [Student]
     student(id: ID!): Student
+    person(id: ID!): Person
     studentsInGroup(groupId: ID!): [Student]
     groups: [Group]
     group(id: ID!): Group
     groupsByYear(year: Int!): [Group]
     groupsThisYear: [Group]
     subjects: [Subject]
+    parentsByStudentId(studentId: ID!): [Person]
   }
 
   scalar Date
@@ -18,12 +20,17 @@ const typeDefs = gql`
     id: ID!
     email: String!
   }
-
-  type Student {
+  
+  type Person {
     id: ID!
     firstName: String!
     lastName: String!
     phone: String
+  }
+
+  type Student {
+    id: ID!
+    person: Person!
   }
 
   type Group {
@@ -35,6 +42,15 @@ const typeDefs = gql`
   type Subject {
     id: ID!
     name: String
+  }
+  
+  input AbsentStudentReport {
+    studentId: ID!
+    subjectId: ID!
+    groupId: ID!
+    lessonNo: Int!
+    absenceReason: Int!
+    date: Date!
   }
 
   type Mutation {
@@ -49,23 +65,20 @@ const typeDefs = gql`
       year: Int!
     ): Group
     
-    createAttendance(
-      groupId: ID!
-      subjectId: ID!
-      lessonNo: Int!
+    initUserAccessCode(personId: ID!): Boolean
+
+    createStudentAttendanceReport(attendanceReport: AbsentStudentReport!): Response
+    
+    sendStudentAttendanceReport(
       date: Date!
-      absentStudentIds: [ID]
-    ): AttendanceResponse
+      groupId: ID!
+      attendanceReportIds: [ID]!
+    ): Boolean
   }
 
-  type AttendanceResponse {
+  type Response {
     id: String!
   }
-#  type AttendanceResponse {
-#    success: Boolean!
-#    message: String
-#    students: [Student]
-#  }
 `
 
 export default typeDefs

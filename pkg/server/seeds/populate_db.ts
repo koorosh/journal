@@ -1,9 +1,13 @@
 import Knex from 'knex'
 import uuid from 'uuid'
 import faker from 'faker'
+import * as _ from 'lodash'
+
+const studentsCount = 240
+const maxParentsPerStudent = 5
 
 export async function seed(knex: Knex): Promise<any> {
-  const persons = Array(240).fill(1)
+  const persons = Array(studentsCount).fill(1)
     .map(() => ({
       id: uuid(),
       first_name: faker.name.firstName(),
@@ -11,10 +15,44 @@ export async function seed(knex: Knex): Promise<any> {
       phone: faker.phone.phoneNumber()
     }))
 
-  const students = persons.map(person => ({
+  const parentPersons = Array(studentsCount * 5).fill(1)
+    .map(() => ({
+      id: uuid(),
+      first_name: faker.name.firstName(),
+      last_name: faker.name.lastName(),
+      phone: faker.phone.phoneNumber()
+    }))
+
+  const students = persons.map((person) => ({
     id: uuid(),
     person_id: person.id,
   }))
+
+  const parents = _.chain(persons)
+    .flatMap(person => {
+      const numberOrRelatives = faker.random.number({
+        min: 1,
+        max: maxParentsPerStudent,
+        precision: 1
+      })
+      return _.times(numberOrRelatives, () => person)
+    })
+    .zip(parentPersons)
+    .filter(([studentPerson, parentPerson]) => !!(studentPerson && parentPerson))
+    .map(([studentPerson, parentPerson]) => {
+      return {
+        id: uuid(),
+        person_id: parentPerson.id,
+        child_id: studentPerson.id,
+        relationship: faker.random.arrayElement([
+          'mother',
+          'father',
+          'grand_mother',
+          'grand_father',
+        ])
+      }
+    })
+    .value()
 
   const groupNames = [
     '1-Б',
@@ -80,10 +118,14 @@ export async function seed(knex: Knex): Promise<any> {
   }
 
   return Promise.all([
-    populateTable('persons', persons)
+    populateTable('persons', [
+      ...persons,
+      ...parentPersons
+    ])
       .then(() => populateTable('students', students))
       .then(() => populateTable('groups', groups))
-      .then(() => populateTable('group_students', groupStudents)),
+      .then(() => populateTable('group_students', groupStudents))
+      .then(() => populateTable('parents', parents)),
     populateTable('subjects', subjects),
   ])
 }

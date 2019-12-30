@@ -1,6 +1,7 @@
-import {GraphQLResolverMap} from 'apollo-graphql'
+import { GraphQLResolverMap } from 'apollo-graphql'
 
-import { Attendance, Context } from './types'
+import { Context } from './types'
+import { Queues } from './datasources'
 
 const resolvers: GraphQLResolverMap<Context> = {
   Query: {
@@ -12,6 +13,9 @@ const resolvers: GraphQLResolverMap<Context> = {
     groupsByYear: (_, { year }, { dataSources }) => dataSources.groups.findByYear(year),
     groupsThisYear: (_, { year }, { dataSources }) => dataSources.groups.groupsThisYear(),
     subjects: (_, __, { dataSources }) => dataSources.subjects.selectAll(),
+    parentsByStudentId: (_, { studentId }, { dataSources }) =>
+      dataSources.parents.getParentsByStudentId(studentId),
+    person: (_, { id }, { dataSources }) => dataSources.persons.findById(id),
   },
   Mutation: {
     createStudent: (_, student, { dataSources }) =>
@@ -26,8 +30,14 @@ const resolvers: GraphQLResolverMap<Context> = {
           ...group,
           id: groupId,
         })),
-    createAttendance: (_, attendance: Attendance, { dataSources }) =>
-      dataSources.attendance.create(attendance)
+    initUserAccessCode: (_, { personId }, { dataSources }) =>
+      dataSources.publisher.publish(Queues.USER_ACCESS_CODE, { personId }),
+    createStudentAttendanceReport: (_, { attendanceReport }, { dataSources }) =>
+      dataSources.absence.createAbsentStudentRecord(attendanceReport),
+    sendStudentAttendanceReport: async (_, {date, groupId, attendanceReportIds}, { dataSources }) => {
+      const reports = await dataSources.absence.getReportsByDateAndGroup(date, groupId, attendanceReportIds)
+      await dataSources.publisher.publish(Queues.ABSENT_STUDENT, { reports })
+    }
   }
 }
 

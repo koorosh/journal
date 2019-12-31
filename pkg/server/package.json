@@ -9,6 +9,9 @@
   },
   "scripts": {
     "start": "node -r ts-node/register -r dotenv/config ./src/index.ts",
+    "build": "tsc",
+    "serve": "node ./src/index.js",
+    "heroku-postbuild": "knex migrate:latest",
     "db:migrate": "node -r dotenv/config ./node_modules/.bin/knex migrate:latest",
     "db:seed": "node -r dotenv/config ./node_modules/.bin/knex seed:run",
     "db:rollback": "node -r dotenv/config ./node_modules/.bin/knex migrate:rollback",

@@ -4,7 +4,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "heroku:local:server": "heroku local -f=pkg/server/Procfile"
+    "build": "yarn workspace ${PROJECT_NAME} build"
   },
   "workspaces": [
     "pkg/*"

@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "private": true,
+  "engines": {
+    "node": "12.13.0",
+    "yarn": "1.x"
+  },
   "scripts": {
     "start": "node -r ts-node/register -r dotenv/config ./src/index.ts",
     "db:migrate": "node -r dotenv/config ./node_modules/.bin/knex migrate:latest",

@@ -12,6 +12,8 @@ import {
 } from './datasources'
 import resolvers from './resolvers'
 
+const port = process.env.PORT || 4000
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -26,6 +28,6 @@ const server = new ApolloServer({
   }),
 })
 
-server.listen().then(({ url }) => {
+server.listen({ port }).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
 })

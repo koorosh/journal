@@ -12,7 +12,7 @@ import {
 } from './datasources'
 import resolvers from './resolvers'
 
-const port = process.env.PORT || 4000
+const port = process.env.PORT
 
 const server = new ApolloServer({
   typeDefs,

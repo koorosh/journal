@@ -10,7 +10,7 @@ export enum Queues {
 export class Publisher extends DataSource {
   constructor() {
     super()
-    const host = process.env.AMQP_HOST || 'amqp://localhost'
+    const host = process.env.CLOUDAMQP_URL
     this.connection = amqplib.connect(host)
       .then(connection => connection.createChannel())
   }

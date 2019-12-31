@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "heroku:local:server": "heroku local -f=pkg/server/Procfile"
+  },
   "workspaces": [
     "pkg/*"
   ],

@@ -1,12 +1,11 @@
-import Knex from 'knex'
-import uuid from 'uuid'
-import faker from 'faker'
-import * as _ from 'lodash'
+const uuid = require('uuid')
+const faker = require('faker')
+const _ = require('lodash')
 
 const studentsCount = 240
 const maxParentsPerStudent = 5
 
-export async function seed(knex: Knex): Promise<any> {
+exports.seed = function(knex) {
   const persons = Array(studentsCount).fill(1)
     .map(() => ({
       id: uuid(),
@@ -90,13 +89,9 @@ export async function seed(knex: Knex): Promise<any> {
     name: subject,
   }))
 
-  type Person = typeof persons[0]
-  type Student = typeof students[0]
-  type Group = typeof groups[0]
-
   const studentsPerGroupCount = Math.ceil(students.length / groups.length)
 
-  const groupStudents = students.reduce((acc: Array<Array<Student>>, value: Student, idx: number) => {
+  const groupStudents = students.reduce((acc, value, idx) => {
     const bucketIdx = Math.floor(idx / studentsPerGroupCount)
     if (!acc[bucketIdx]) {
       acc[bucketIdx] = []
@@ -112,7 +107,7 @@ export async function seed(knex: Knex): Promise<any> {
     })
     .reduce((acc, value) => acc.concat(value), [])
 
-  const populateTable = (tableName: string, data: any[]): Promise<any> => {
+  const populateTable = (tableName, data) => {
     return knex(tableName).del()
       .then(() => knex(tableName).insert(data))
   }

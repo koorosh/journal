@@ -1,8 +1,6 @@
-import Knex from 'knex'
-
 const tableName = 'parents'
 
-export function up(knex: Knex): Knex.SchemaBuilder {
+exports.up = function(knex) {
   return knex.schema.createTable(tableName, t => {
     t.uuid('id').primary()
     t.uuid('person_id')
@@ -17,6 +15,6 @@ export function up(knex: Knex): Knex.SchemaBuilder {
   })
 }
 
-export function down(knex: Knex): Knex.SchemaBuilder {
+exports.down = function(knex) {
   return knex.schema.dropTable(tableName)
 }

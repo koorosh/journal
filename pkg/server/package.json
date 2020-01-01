@@ -9,12 +9,12 @@
   },
   "scripts": {
     "start": "node -r ts-node/register -r dotenv/config ./src/index.ts",
-    "build": "tsc",
+    "build": "tsc && knex migrate:latest",
     "serve": "node ./src/index.js",
-    "db:migrate": "node -r dotenv/config ./node_modules/.bin/knex migrate:latest",
-    "db:seed": "node -r dotenv/config ./node_modules/.bin/knex seed:run",
-    "db:rollback": "node -r dotenv/config ./node_modules/.bin/knex migrate:rollback",
-    "db:make": "node -r dotenv/config ./node_modules/.bin/knex migrate:make"
+    "db:migrate": "knex migrate:latest",
+    "db:seed": "knex seed:run",
+    "db:rollback": "knex migrate:rollback",
+    "db:make": "node knex migrate:make"
   },
   "dependencies": {
     "apollo-datasource": "^0.6.3",

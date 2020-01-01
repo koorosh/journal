@@ -3,11 +3,11 @@ import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import { createApolloFetch } from 'apollo-fetch'
 import { keyBy } from 'lodash'
+import { flatMap } from 'rxjs/operators'
 
 import senderDb from './config/db'
 import { listenToQueue, Queues } from './config/amqp'
 import { router as viberRouter, sendTextMessage, setWebHook } from './clients/viber'
-import { flatMap, map } from 'rxjs/operators'
 
 const uri = process.env.GRAPHQL_SERVER_URL
 
@@ -54,9 +54,16 @@ interface UserAccessCodeMessage {
 }
 
 interface AbsentStudentMessage {
-  studentId: string
-  absentDate?: Date
-  lessonsMissed?: string[]
+  reports: Array<{
+    studentId: string
+    lessonNo: number
+    date: string
+    absenceReason: number
+    group: string
+    studentFirstName: string
+    studentLastName: string
+    subject: string
+  }>
 }
 
 // returns 6-digit random number
@@ -75,24 +82,19 @@ listenToQueue<UserAccessCodeMessage>(Queues.USER_ACCESS_CODE)
 
 listenToQueue<AbsentStudentMessage>(Queues.ABSENT_STUDENT)
   .pipe(
-    flatMap(msg => apolloFetch([
-        { query: queryStudent, variables: { id: msg.studentId }},
-        { query: queryParents, variables: { id: msg.studentId }}
-      ])),
-    map(results => {
-      const { data: { student }, errors: studentError } = results[0]
-      const { data: { parentsByStudentId }, errors: parentError } = results[1]
-      if (studentError) throw studentError
-      if (parentError) throw parentError
-      return {
-        student,
-        parents: parentsByStudentId
-      }
+    flatMap(msg => msg.reports.map(report => report)),
+    flatMap(msg => {
+      return apolloFetch({ query: queryParents, variables: { id: msg.studentId }})
+        .then(({ data: { parentsByStudentId }, errors: parentError }) => {
+          return {
+            ...msg,
+            parents: parentsByStudentId,
+          }
+        })
     }),
     flatMap(data => {
-      const { student, parents } = data
-      const parentIds = parents.map((p: any) => p.id)
-      const parentsData = keyBy(parents, 'id')
+      const parentIds = data.parents.map((p: any) => p.id)
+      const parentsData = keyBy(data.parents, 'id')
       // select all recipients (parents) of current student.
       return senderDb
         .from('person_subscribers')
@@ -103,13 +105,14 @@ listenToQueue<AbsentStudentMessage>(Queues.ABSENT_STUDENT)
             return {
               receiverId: record.user_receiver_id,
               parentName: `${parent.lastName} ${parent.firstName}`,
-              studentName: `${student.person.lastName} ${student.person.firstName}`
+              studentName: `${data.studentLastName} ${data.studentFirstName}`,
+              subject: data.subject,
             }
           })
         })
     })
   )
-  .subscribe((data: any[]) => {
+  .subscribe(data => {
     Promise.all(data.map(d => {
       const text = `${d.parentName}, ваше чадо (${d.studentName}) прогуляло уроки!`
       return sendTextMessage(d.receiverId, text)

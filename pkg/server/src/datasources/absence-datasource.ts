@@ -32,6 +32,7 @@ export class AbsenceDatasource extends SqlDatasource {
   async getReportsByDateAndGroup(date: Date, groupId: string, attendanceReportIds: string[]) {
     const reports = await this.db
       .select([
+        'students.id AS studentId',
         'absent_students.lesson_no AS lessonNo',
         'absent_students.date',
         'absent_students.reason AS absenceReason',

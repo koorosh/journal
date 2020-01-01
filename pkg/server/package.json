@@ -14,7 +14,7 @@
     "db:migrate": "knex migrate:latest",
     "db:seed": "knex seed:run",
     "db:rollback": "knex migrate:rollback",
-    "db:make": "node knex migrate:make"
+    "db:make": "knex migrate:make"
   },
   "dependencies": {
     "apollo-datasource": "^0.6.3",

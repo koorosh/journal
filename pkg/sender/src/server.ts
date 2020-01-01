@@ -36,12 +36,12 @@ const apolloFetch = createApolloFetch({ uri })
 
 const app = new Koa();
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT
 
 app
   .use(bodyParser())
   .use(viberRouter.routes())
-  .use(viberRouter.allowedMethods());
+  .use(viberRouter.allowedMethods())
 
 app.listen(port,() => {
   console.log(`🚀 Server is ready`)

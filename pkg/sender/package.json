@@ -4,16 +4,19 @@
   "description": "",
   "main": "index.js",
   "private": true,
+  "engines": {
+    "node": "^12.13.0",
+    "yarn": "1.x"
+  },
   "scripts": {
     "start": "node -r ts-node/register -r dotenv/config ./index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "db:migrate": "node -r dotenv/config ./node_modules/.bin/knex migrate:latest",
-    "db:seed": "node -r dotenv/config ./node_modules/.bin/knex seed:run",
-    "db:rollback": "node -r dotenv/config ./node_modules/.bin/knex migrate:rollback",
-    "db:make": "node -r dotenv/config ./node_modules/.bin/knex migrate:make"
+    "build": "tsc && knex migrate:latest",
+    "serve": "node ./index.js",
+    "db:migrate": "knex migrate:latest",
+    "db:seed": "knex seed:run",
+    "db:rollback": "knex migrate:rollback",
+    "db:make": "knex migrate:make"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "amqplib": "^0.5.5",
     "apollo-fetch": "^0.7.0",

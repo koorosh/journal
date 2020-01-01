@@ -1,7 +1,7 @@
 import * as amqplib from 'amqplib'
 import {Observable, Subject} from 'rxjs'
 
-const host = process.env.AMQP_HOST || 'amqp://localhost'
+const host = process.env.CLOUDAMQP_URL
 
 const connection: Promise<amqplib.Channel> = amqplib.connect(host)
   .then(connection => connection.createChannel())

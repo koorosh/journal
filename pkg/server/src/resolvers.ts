@@ -1,7 +1,7 @@
 import { GraphQLResolverMap } from 'apollo-graphql'
 
 import { Context } from './types'
-import { Queues } from './datasources'
+import { Queues } from './config/amqp'
 
 const resolvers: GraphQLResolverMap<Context> = {
   Query: {

@@ -31,3 +31,10 @@ const server = new ApolloServer({
 server.listen({ port }).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
 })
+
+const gracefulShutdown = async () => {
+  await server.stop()
+}
+
+process.on('SIGTERM', gracefulShutdown)
+process.on('SIGINT', gracefulShutdown)

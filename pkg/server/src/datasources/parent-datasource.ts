@@ -1,5 +1,7 @@
+import uuid from 'uuid'
+
 import SqlDatasource from './sql-datasource'
-import { Person } from '../types'
+import { Person, Parent } from '../types'
 
 export class ParentDatasource extends SqlDatasource {
   getParentsByStudentId(personId: string): Promise<Array<Person>> {
@@ -21,5 +23,48 @@ export class ParentDatasource extends SqlDatasource {
           phone: record.phone,
         }))
       })
+  }
+
+  create(firstName: string, lastName: string, phone: string, childPersonId: string, relationship: string): Promise<Parent> {
+    return this.db.transaction(async (trx) => {
+      const personId = uuid()
+      const parentId = uuid()
+
+      await trx.table('persons')
+        .insert({
+          id: personId,
+          first_name: firstName,
+          last_name: lastName,
+          phone: phone,
+        })
+
+      await trx.table('parents')
+        .insert({
+          id: parentId,
+          person_id: personId,
+          child_id: childPersonId
+        })
+
+      const childPerson = await trx.table('persons')
+        .where('id', '=', childPersonId)
+        .first()
+
+      return {
+        id: parentId,
+        person: {
+          id: personId,
+          firstName,
+          lastName,
+          phone,
+        },
+        child: {
+          id: childPerson.id,
+          firstName: childPerson.first_name,
+          lastName: childPerson.last_name,
+          phone: childPerson.phone,
+        },
+        relationship
+      }
+    })
   }
 }

@@ -46,6 +46,13 @@ export interface Subject {
   name: string
 }
 
+export interface Parent {
+  id: string
+  person: Person
+  child: Person
+  relationship: string
+}
+
 export enum AbsenceReason {
   UNKNOWN = 0,
   ILLNESS = 1,

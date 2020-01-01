@@ -20,6 +20,8 @@ const resolvers: GraphQLResolverMap<Context> = {
   Mutation: {
     createStudent: (_, student, { dataSources }) =>
       dataSources.students.create(student),
+    createParent: (_, { firstName, lastName, phone, relationship, childPersonId }, { dataSources }) =>
+      dataSources.parents.create(firstName, lastName, phone, childPersonId, relationship),
     createGroup: (_, group, { dataSources }) =>
       dataSources.groups.create(group)
         .then(groupId => ({

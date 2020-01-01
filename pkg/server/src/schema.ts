@@ -44,6 +44,13 @@ const typeDefs = gql`
     name: String
   }
   
+  type Parent {
+    id: ID!
+    person: Person!
+    child: Person!
+    relationship: String!
+  }
+  
   input AbsentStudentReport {
     studentId: ID!
     subjectId: ID!
@@ -59,6 +66,14 @@ const typeDefs = gql`
       lastName: String!
       phone: String
     ): Student
+    
+    createParent(
+      firstName: String!
+      lastName: String!
+      phone: String
+      relationship: String!
+      childPersonId: ID!
+    ): Parent
 
     createGroup(
       name: String!

@@ -1,17 +1,16 @@
 {
   "name": "sender",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "private": true,
   "engines": {
     "node": "^12.13.0",
     "yarn": "1.x"
   },
   "scripts": {
-    "start": "node -r ts-node/register -r dotenv/config ./index.ts",
+    "start": "node -r ts-node/register -r dotenv/config ./src/index.ts",
     "build": "tsc && knex migrate:latest",
-    "serve": "node ./index.js",
+    "serve": "node ./src/index.js",
     "db:migrate": "knex migrate:latest",
     "db:seed": "knex seed:run",
     "db:rollback": "knex migrate:rollback",
@@ -35,6 +34,9 @@
   "devDependencies": {
     "@types/amqplib": "^0.5.13",
     "@types/knex": "^0.16.1",
-    "@types/lodash": "^4.14.149"
+    "@types/koa-bodyparser": "^4.3.0",
+    "@types/lodash": "^4.14.149",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
   }
 }

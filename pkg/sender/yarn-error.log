@@ -1,30 +1,30 @@
 Arguments: 
-  /Users/andrii/.nvm/versions/node/v10.17.0/bin/node /usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js add @types/viber-bot -D
+  /Users/andrii/.nvm/versions/node/v12.13.0/bin/node /usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js add @types/koa-bodyparser typescript ts-node -D
 
 PATH: 
-  /Users/andrii/.nvm/versions/node/v10.17.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Users/andrii/projects/koorosh/journal/node_modules/.bin
+  /Users/andrii/.nvm/versions/node/v12.13.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Users/andrii/projects/koorosh/journal/node_modules/.bin
 
 Yarn version: 
   1.21.1
 
 Node version: 
-  10.17.0
+  12.13.0
 
 Platform: 
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fviber-bot: Not found
-      at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:66947:18)
-      at Request.self.callback (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:140665:22)
-      at Request.emit (events.js:198:13)
-      at Request.<anonymous> (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:141637:10)
-      at Request.emit (events.js:198:13)
-      at IncomingMessage.<anonymous> (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:141559:12)
-      at Object.onceWrapper (events.js:286:20)
-      at IncomingMessage.emit (events.js:203:15)
-      at endReadableNT (_stream_readable.js:1143:12)
-      at process._tickCallback (internal/process/next_tick.js:63:19)
+  Invariant Violation: expected workspace package to exist for "ts-node"
+      at invariant (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:2314:15)
+      at _loop2 (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:94898:9)
+      at PackageHoister.init (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:94957:19)
+      at PackageLinker.getFlatHoistedTree (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:48743:20)
+      at PackageLinker.<anonymous> (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:48754:27)
+      at Generator.next (<anonymous>)
+      at step (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:310:30)
+      at /usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:328:14
+      at new Promise (<anonymous>)
+      at new F (/usr/local/Cellar/yarn/1.21.1/libexec/lib/cli.js:5301:28)
 
 npm manifest: 
   {
@@ -33,26 +33,41 @@ npm manifest:
     "description": "",
     "main": "index.js",
     "private": true,
-    "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+    "engines": {
+      "node": "^12.13.0",
+      "yarn": "1.x"
     },
-    "author": "",
-    "license": "ISC",
+    "scripts": {
+      "start": "node -r ts-node/register -r dotenv/config src/index.ts",
+      "build": "tsc && knex migrate:latest",
+      "serve": "node ./src/index.js",
+      "db:migrate": "knex migrate:latest",
+      "db:seed": "knex seed:run",
+      "db:rollback": "knex migrate:rollback",
+      "db:make": "knex migrate:make"
+    },
     "dependencies": {
       "amqplib": "^0.5.5",
+      "apollo-fetch": "^0.7.0",
       "axios": "^0.19.0",
+      "knex": "^0.20.4",
       "koa": "^2.11.0",
       "koa-bodyparser": "^4.2.1",
       "koa-jwt": "^3.6.0",
       "koa-logger": "^3.2.1",
       "koa-router": "^7.4.0",
       "le_node": "^1.8.0",
+      "lodash": "^4.17.15",
       "rxjs": "^6.5.3",
-      "uuid": "^3.3.3",
-      "viber-bot": "^1.0.14"
+      "uuid": "^3.3.3"
     },
     "devDependencies": {
-      "@types/amqplib": "^0.5.13"
+      "@types/amqplib": "^0.5.13",
+      "@types/knex": "^0.16.1",
+      "@types/koa-bodyparser": "^4.3.0",
+      "@types/lodash": "^4.14.149",
+      "ts-node": "^8.5.4",
+      "typescript": "^3.7.4"
     }
   }
 
@@ -265,6 +280,13 @@ Lockfile:
     dependencies:
       knex "*"
   
+  "@types/koa-bodyparser@^4.3.0":
+    version "4.3.0"
+    resolved "https://registry.yarnpkg.com/@types/koa-bodyparser/-/koa-bodyparser-4.3.0.tgz#54ecd662c45f3a4fa9de849528de5fc8ab269ba5"
+    integrity sha512-aB/vwwq4G9FAtKzqZ2p8UHTscXxZvICFKVjuckqxCtkX1Ro7F5KHkTCUqTRZFBgDoEkmeca+bFLI1bIsdPPZTA==
+    dependencies:
+      "@types/koa" "*"
+  
   "@types/koa-compose@*":
     version "3.2.5"
     resolved "https://registry.yarnpkg.com/@types/koa-compose/-/koa-compose-3.2.5.tgz#85eb2e80ac50be95f37ccf8c407c09bbe3468e9d"
@@ -432,6 +454,13 @@ Lockfile:
       core-js "^3.0.1"
       node-fetch "^2.2.0"
       sha.js "^2.4.11"
+  
+  apollo-fetch@^0.7.0:
+    version "0.7.0"
+    resolved "https://registry.yarnpkg.com/apollo-fetch/-/apollo-fetch-0.7.0.tgz#63c255a0ccb1b4c473524d8f9b536d72438bd3e7"
+    integrity sha512-0oHsDW3Zxx+Of1wuqcOXruNj4Kv55WN69tkIjwkCQDEIrgCpgA2scjChFsgflSVMy/1mkTKCY1Mc0TYJhNRzmw==
+    dependencies:
+      cross-fetch "^1.0.0"
   
   apollo-graphql@^0.3.4:
     version "0.3.5"
@@ -622,13 +651,6 @@ Lockfile:
     dependencies:
       retry "0.12.0"
   
-  async@^2.0.1:
-    version "2.6.3"
-    resolved "https://registry.yarnpkg.com/async/-/async-2.6.3.tgz#d72625e2344a3656e3a3ad4fa749fa83299d82ff"
-    integrity sha512-zflvls11DCy+dQWzTW2dzuilv8Z5X/pjfmZOWba6TNIVDm+2UDaJmXSOXlasHKfNBs8oo3M0aT50fDEWfKZjXg==
-    dependencies:
-      lodash "^4.17.14"
-  
   atob@^2.1.1:
     version "2.1.2"
     resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
@@ -674,11 +696,6 @@ Lockfile:
       mixin-deep "^1.2.0"
       pascalcase "^0.1.1"
   
-  bignumber.js@^4.0.0:
-    version "4.1.0"
-    resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-4.1.0.tgz#db6f14067c140bd46624815a7916c92d9b6c24b1"
-    integrity sha512-eJzYkFYy9L4JzXsbymsFn3p54D+llV27oTQ+ziJG7WFRheJcNZilgVXMG0LoZtlQSKBsJdWtLFqOD0u+U0jZKA==
-  
   bitsyntax@~0.1.0:
     version "0.1.0"
     resolved "https://registry.yarnpkg.com/bitsyntax/-/bitsyntax-0.1.0.tgz#b0c59acef03505de5a2ed62a2f763c56ae1d6205"
@@ -698,7 +715,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.1.tgz#df70e302b471d7473489acf26a93d63b53f874de"
     integrity sha512-DdmyoGCleJnkbp3nkbxTLJ18rjDsE4yCggEwKNXkeV123sPNfOCYeDoeuOY+F2FrSjO1YXcTU+dsy96KMy+gcg==
   
-  body-parser@1.19.0, body-parser@^1.15.2, body-parser@^1.18.3:
+  body-parser@1.19.0, body-parser@^1.18.3:
     version "1.19.0"
     resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.19.0.tgz#96b2709e57c9c4e09a6fd66a8fd979844f69f08a"
     integrity sha512-dhEPs72UPbDnAQJ9ZKMNTP6ptJaionhP5cBb541nXPlW60Jepo9RV/a4fX4XWW9CuFNK22krhrj1+rgzifNCsw==
@@ -929,12 +946,20 @@ Lockfile:
       object-assign "^4"
       vary "^1"
   
+  cross-fetch@^1.0.0:
+    version "1.1.1"
+    resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-1.1.1.tgz#dede6865ae30f37eae62ac90ebb7bdac002b05a0"
+    integrity sha512-+VJE04+UfxxmBfcnmAu/lKor53RUCx/1ilOti4p+JgrnLQ4AZZIRoe2OEd76VaHyWQmQxqKnV+TaqjHC4r0HWw==
+    dependencies:
+      node-fetch "1.7.3"
+      whatwg-fetch "2.0.3"
+  
   dataloader@^2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.0.0.tgz#41eaf123db115987e21ca93c005cd7753c55fe6f"
     integrity sha512-YzhyDAwA4TaQIhM5go+vCLmU0UikghC/t9DTQYZR2M/UvZ1MdOhPezSDZcjj9uqQJOMqjLcpWtyW2iNINdlatQ==
   
-  debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3, debug@~2.6.9:
+  debug@2.6.9, debug@^2.2.0, debug@^2.3.3, debug@~2.6.9:
     version "2.6.9"
     resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
     integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
@@ -1065,6 +1090,13 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
     integrity sha1-rT/0yG7C0CkyL1oCw6mmBslbP1k=
   
+  encoding@^0.1.11:
+    version "0.1.12"
+    resolved "https://registry.yarnpkg.com/encoding/-/encoding-0.1.12.tgz#538b66f3ee62cd1ab51ec323829d1f9480c74beb"
+    integrity sha1-U4tm8+5izRq1HsMjgp0flIDHS+s=
+    dependencies:
+      iconv-lite "~0.4.13"
+  
   error-inject@^1.0.0:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/error-inject/-/error-inject-1.0.0.tgz#e2b3d91b54aed672f309d950d154850fa11d4f37"
@@ -1135,7 +1167,7 @@ Lockfile:
     dependencies:
       homedir-polyfill "^1.0.1"
   
-  express@^4.0.0, express@^4.14.0, express@^4.17.1:
+  express@^4.0.0, express@^4.17.1:
     version "4.17.1"
     resolved "https://registry.yarnpkg.com/express/-/express-4.17.1.tgz#4491fc38605cf51f8629d39c2b5d026f98a4c134"
     integrity sha512-mHJ9O79RqluphRrcw2X/GTh3k9tVv8YcoyY4Kkh4WDMUYKRZUq0h1o0w2rrrxBqM7VoeUVqgb27xlEMXTnYt4g==
@@ -1479,7 +1511,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/humanize-number/-/humanize-number-0.0.2.tgz#11c0af6a471643633588588048f1799541489c18"
     integrity sha1-EcCvakcWQ2M1iFiASPF5lUFInBg=
   
-  iconv-lite@0.4.24, iconv-lite@^0.4.4:
+  iconv-lite@0.4.24, iconv-lite@~0.4.13:
     version "0.4.24"
     resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
     integrity sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==
@@ -1652,6 +1684,11 @@ Lockfile:
     dependencies:
       is-unc-path "^1.0.0"
   
+  is-stream@^1.0.1:
+    version "1.1.0"
+    resolved "https://registry.yarnpkg.com/is-stream/-/is-stream-1.1.0.tgz#12d4a3dd4e68e0b79ceb8dbc84173ae80d91ca44"
+    integrity sha1-EtSj3U5o4Lec6428hBc66A2RykQ=
+  
   is-symbol@^1.0.2:
     version "1.0.3"
     resolved "https://registry.yarnpkg.com/is-symbol/-/is-symbol-1.0.3.tgz#38e1014b9e6329be0de9d24a414fd7441ec61937"
@@ -1702,13 +1739,6 @@ Lockfile:
     version "1.2.2"
     resolved "https://registry.yarnpkg.com/iterall/-/iterall-1.2.2.tgz#92d70deb8028e0c39ff3164fdbf4d8b088130cd7"
     integrity sha512-yynBb1g+RFUPY64fTrFv7nsjRrENBQJaX2UL+2Szc9REFrSNm1rpSXHGzhmAy7a9uv3vlvgBlXnf9RqmPH1/DA==
-  
-  json-bigint@^0.2.3:
-    version "0.2.3"
-    resolved "https://registry.yarnpkg.com/json-bigint/-/json-bigint-0.2.3.tgz#118d7f6ff1d38659f19f94cf73e64a75a3f988a8"
-    integrity sha1-EY1/b/HThlnxn5TPc+ZKdaP5iKg=
-    dependencies:
-      bignumber.js "^4.0.0"
   
   json-stringify-safe@5.0.1:
     version "5.0.1"
@@ -1783,6 +1813,27 @@ Lockfile:
     version "0.20.2"
     resolved "https://registry.yarnpkg.com/knex/-/knex-0.20.2.tgz#7429577a95a10f4a4e3090c23b559fed20343b4a"
     integrity sha512-nw7/RsaZrIGdzbsb1evcEaZv8sL/Ji2W7o5OoF0NIKei4ySU01D4G5mRNVNtneoLoPjUMgqSFRanabhGacJUIA==
+    dependencies:
+      bluebird "^3.7.1"
+      colorette "1.1.0"
+      commander "^4.0.1"
+      debug "4.1.1"
+      getopts "2.2.5"
+      inherits "~2.0.4"
+      interpret "^2.0.0"
+      liftoff "3.1.0"
+      lodash "^4.17.15"
+      mkdirp "^0.5.1"
+      pg-connection-string "2.1.0"
+      tarn "^2.0.0"
+      tildify "2.0.0"
+      uuid "^3.3.3"
+      v8flags "^3.1.3"
+  
+  knex@^0.20.4:
+    version "0.20.4"
+    resolved "https://registry.yarnpkg.com/knex/-/knex-0.20.4.tgz#ee9575abb0611f44232a1579ea7c72d0fdff4ebe"
+    integrity sha512-gNpYj9BtacWnQwkyPaHOlzHRLJ7N6Abz8AKYb4OqoDA/iCY50VAUSpigjkS7Z4sr7uW64sxW2cVoXudaLN1ZQw==
     dependencies:
       bluebird "^3.7.1"
       colorette "1.1.0"
@@ -1965,7 +2016,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
     integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
   
-  lodash@^4.17.14, lodash@^4.17.15:
+  lodash@^4.17.15:
     version "4.17.15"
     resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
     integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
@@ -2109,18 +2160,18 @@ Lockfile:
       snapdragon "^0.8.1"
       to-regex "^3.0.1"
   
-  needle@^1.1.0:
-    version "1.6.0"
-    resolved "https://registry.yarnpkg.com/needle/-/needle-1.6.0.tgz#f52a5858972121618e002f8e6384cadac22d624f"
-    integrity sha1-9SpYWJchIWGOAC+OY4TK2sItYk8=
-    dependencies:
-      debug "^2.1.2"
-      iconv-lite "^0.4.4"
-  
   negotiator@0.6.2:
     version "0.6.2"
     resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
     integrity sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==
+  
+  node-fetch@1.7.3:
+    version "1.7.3"
+    resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-1.7.3.tgz#980f6f72d85211a5347c6b2bc18c5b84c3eb47ef"
+    integrity sha512-NhZ4CsKx7cYm2vSrBAr2PvFOe6sWDf0UYLRqA6svUYg7+/TSfVAu49jYC4BvQ4Sms9SZgdqGBgroqfDhJdTyKQ==
+    dependencies:
+      encoding "^0.1.11"
+      is-stream "^1.0.1"
   
   node-fetch@^2.1.2, node-fetch@^2.2.0:
     version "2.6.0"
@@ -2836,15 +2887,15 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.3.tgz#b36840668a16458a7025b9eabfad11b66ab85c69"
     integrity sha512-Mcr/Qk7hXqFBXMN7p7Lusj1ktCBydylfQM/FZCk5glCNQJrCUKPkMHdo9R0MTFWsC/4kPFvDS0fDPvukfCkFsw==
   
+  typescript@^3.7.4:
+    version "3.7.4"
+    resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.4.tgz#1743a5ec5fef6a1fa9f3e4708e33c81c73876c19"
+    integrity sha512-A25xv5XCtarLwXpcDNZzCGvW2D1S3/bACratYBx2sax8PefsFhlYmkQicKHvpYflFS8if4zne5zT5kpJ7pzuvw==
+  
   unc-path-regex@^0.1.2:
     version "0.1.2"
     resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
     integrity sha1-5z3T17DXxe2G+6xrCufYxqadUPo=
-  
-  underscore@^1.8.3:
-    version "1.9.1"
-    resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.9.1.tgz#06dce34a0e68a7babc29b365b8e74b8925203961"
-    integrity sha512-5/4etnCkd9c8gwgowi5/om/mYO5ajCaOgdzj/oW+0eQV9WxKBDZw5+ycmKmeaTXjInS/W0BzpGLo2xR2aBwZdg==
   
   union-value@^1.0.0:
     version "1.0.1"
@@ -2922,17 +2973,10 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
     integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
   
-  viber-bot@^1.0.14:
-    version "1.0.14"
-    resolved "https://registry.yarnpkg.com/viber-bot/-/viber-bot-1.0.14.tgz#97ba1ffc6d8ea7b6b1ddd9e22a45d13628a52fce"
-    integrity sha512-fWjnMGbk9Y73KrLACidSWFdxAtSdPA+xZDU4/0YHXNvmuKuuTylv36i409j9/kUtKdMbZdAt0ixc8j4RRPJBFw==
-    dependencies:
-      async "^2.0.1"
-      body-parser "^1.15.2"
-      express "^4.14.0"
-      json-bigint "^0.2.3"
-      needle "^1.1.0"
-      underscore "^1.8.3"
+  whatwg-fetch@2.0.3:
+    version "2.0.3"
+    resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.3.tgz#9c84ec2dcf68187ff00bc64e1274b442176e1c84"
+    integrity sha1-nITsLc9oGH/wC8ZOEnS0QhduHIQ=
   
   which@^1.2.14:
     version "1.3.1"

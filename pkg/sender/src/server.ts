@@ -9,7 +9,7 @@ import { listenToQueue, Queues } from './config/amqp'
 import { router as viberRouter, sendTextMessage, setWebHook } from './clients/viber'
 import { flatMap, map } from 'rxjs/operators'
 
-const uri = 'http://localhost:4000/graphql'
+const uri = process.env.GRAPHQL_SERVER_URL
 
 const queryStudent = `
   query Student($id: ID!) {
@@ -91,7 +91,7 @@ listenToQueue<AbsentStudentMessage>(Queues.ABSENT_STUDENT)
     }),
     flatMap(data => {
       const { student, parents } = data
-      const parentIds = parents.map(p => p.id)
+      const parentIds = parents.map((p: any) => p.id)
       const parentsData = keyBy(parents, 'id')
       // select all recipients (parents) of current student.
       return senderDb

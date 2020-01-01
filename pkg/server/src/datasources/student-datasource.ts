@@ -1,6 +1,6 @@
 import uuid from 'uuid'
 import SqlDatasource from './sql-datasource'
-import { Student } from '../types'
+import { Person, Student } from '../types'
 
 export class StudentDatasource extends SqlDatasource {
   selectAll(): Promise<Array<Student>> {
@@ -79,7 +79,7 @@ export class StudentDatasource extends SqlDatasource {
         }))))
   }
 
-  create({ person: {firstName, lastName, phone }}: Partial<Student>): Promise<string> {
+  create({ firstName, lastName, phone }: Partial<Person>): Promise<Student> {
     return this.db.transaction(async (trx) => {
       const personId = uuid()
       const studentId = uuid()
@@ -98,7 +98,15 @@ export class StudentDatasource extends SqlDatasource {
           person_id: personId,
         })
 
-      return studentId
+      return {
+        id: studentId,
+        person: {
+          id: personId,
+          firstName,
+          lastName,
+          phone,
+        }
+      }
     })
   }
 }

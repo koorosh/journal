@@ -12,6 +12,7 @@ const typeDefs = gql`
     groupsThisYear: [Group]
     subjects: [Subject]
     parentsByStudentId(studentId: ID!): [Person]
+    absenceReport(id: ID!): AbsentReport
   }
 
   scalar Date
@@ -49,6 +50,16 @@ const typeDefs = gql`
     person: Person!
     child: Person!
     relationship: String!
+  }
+  
+  type AbsentReport {
+    id: ID!
+    studentId: ID!
+    subjectId: ID!
+    groupId: ID!
+    lessonNo: Int!
+    absenceReason: Int!
+    date: Date!
   }
   
   input AbsentStudentReport {

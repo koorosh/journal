@@ -3,6 +3,7 @@ import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import { createApolloFetch } from 'apollo-fetch'
 import { keyBy } from 'lodash'
+import { throwError } from 'rxjs'
 import { flatMap } from 'rxjs/operators'
 
 import senderDb from './config/db'
@@ -32,9 +33,23 @@ const queryParents = `
     }
   }
 `
+
+const queryReportById = `
+  query AbsenceReport($id: ID!) {
+    absenceReport(id: $id) {
+      id
+      subjectId
+      studentId
+      groupId
+      absenceReason
+      date
+      lessonNo
+    }
+  }
+`
 const apolloFetch = createApolloFetch({ uri })
 
-const app = new Koa();
+const app = new Koa()
 
 const port = process.env.PORT
 
@@ -43,7 +58,7 @@ app
   .use(viberRouter.routes())
   .use(viberRouter.allowedMethods())
 
-app.listen(port,() => {
+app.listen(port, () => {
   console.log(`🚀 Server is ready`)
   setWebHook()
 })
@@ -54,16 +69,7 @@ interface UserAccessCodeMessage {
 }
 
 interface AbsentStudentMessage {
-  reports: Array<{
-    studentId: string
-    lessonNo: number
-    date: string
-    absenceReason: number
-    group: string
-    studentFirstName: string
-    studentLastName: string
-    subject: string
-  }>
+  reportId: string
 }
 
 // returns 6-digit random number
@@ -82,39 +88,60 @@ listenToQueue<UserAccessCodeMessage>(Queues.USER_ACCESS_CODE)
 
 listenToQueue<AbsentStudentMessage>(Queues.ABSENT_STUDENT)
   .pipe(
-    flatMap(msg => msg.reports.map(report => report)),
-    flatMap(msg => {
-      return apolloFetch({ query: queryParents, variables: { id: msg.studentId }})
-        .then(({ data: { parentsByStudentId }, errors: parentError }) => {
+    flatMap(({ reportId }) => {
+      return apolloFetch({ query: queryReportById, variables: { id: reportId } })
+        .then(({ data, errors }) => {
+          if (errors) throwError(errors)
+          const { absenceReport } = data
+
+          const { studentId, groupId, subjectId, absenceReason, lessonNo, date } = absenceReport
           return {
-            ...msg,
-            parents: parentsByStudentId,
+            studentId,
+            groupId,
+            subjectId,
+            absenceReason,
+            lessonNo,
+            date
           }
         })
     }),
-    flatMap(data => {
-      const parentIds = data.parents.map((p: any) => p.id)
-      const parentsData = keyBy(data.parents, 'id')
-      // select all recipients (parents) of current student.
-      return senderDb
-        .from('person_subscribers')
-        .where('person_id', 'in', parentIds)
-        .then(records => {
-          return records.map(record => {
-            const parent = parentsData[record.person_id]
-            return {
-              receiverId: record.user_receiver_id,
-              parentName: `${parent.lastName} ${parent.firstName}`,
-              studentName: `${data.studentLastName} ${data.studentFirstName}`,
-              subject: data.subject,
-            }
-          })
+    flatMap(msg => {
+      const { studentId, subjectId, lessonNo, date } = msg
+      return apolloFetch([
+        { query: queryStudent, variables: { id: studentId } },
+        { query: queryParents, variables: { id: studentId } }
+      ])
+        .then(([studentResponse, parentsResponse]) => {
+          if (studentResponse.errors) throwError(studentResponse.errors)
+          if (parentsResponse.errors) throwError(parentsResponse.errors)
+
+          const student = studentResponse.data.student
+          const parents = parentsResponse.data.parentsByStudentId
+          const parentIds = parents.map(parent => parent.id)
+          const parentsData = keyBy(parents, 'id')
+
+          return senderDb
+            .from('person_subscribers')
+            .where('person_id', 'in', parentIds)
+            .then(records => {
+              return records.map(record => {
+                const parent = parentsData[record.person_id]
+                return {
+                  receiverId: record.subscriber_id,
+                  parentName: `${parent.lastName} ${parent.firstName}`,
+                  studentName: `${student.person.lastName} ${student.person.firstName}`,
+                  subject: subjectId,
+                  date,
+                  lessonNo
+                }
+              })
+            })
         })
     })
   )
   .subscribe(data => {
     Promise.all(data.map(d => {
-      const text = `${d.parentName}, ваше чадо (${d.studentName}) прогуляло уроки!`
+      const text = JSON.stringify(d, null, 2)
       return sendTextMessage(d.receiverId, text)
     }))
   })

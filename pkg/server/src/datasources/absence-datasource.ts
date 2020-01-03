@@ -5,13 +5,13 @@ import { Absence, WithoutId } from '../types'
 
 export class AbsenceDatasource extends SqlDatasource {
   async createAbsentStudentRecord({
-                               groupId,
-                               studentId,
-                               lessonNo,
-                               date,
-                               subjectId,
-                               reason
-                             }: WithoutId<Absence>) {
+                                    groupId,
+                                    studentId,
+                                    lessonNo,
+                                    date,
+                                    subjectId,
+                                    reason
+                                  }: WithoutId<Absence>) {
     const absenceId = uuid()
     await this.db
       .table('absent_students')
@@ -29,6 +29,7 @@ export class AbsenceDatasource extends SqlDatasource {
     }
   }
 
+  // TODO (koorosh): Unused method. Has to be removed
   async getReportsByDateAndGroup(date: Date, groupId: string, attendanceReportIds: string[]) {
     const reports = await this.db
       .select([
@@ -53,5 +54,23 @@ export class AbsenceDatasource extends SqlDatasource {
       })
 
     return reports
+  }
+
+  async findById(id: string) {
+    const record = await this.db
+      .from('absent_students')
+      .where('id', id)
+      .first()
+
+    const { student_id, group_id, subject_id, reason, lesson_no, date } = record
+    return {
+      id,
+      subjectId: subject_id,
+      studentId: student_id,
+      groupId: group_id,
+      absenceReason: reason,
+      date,
+      lessonNo: lesson_no
+    }
   }
 }

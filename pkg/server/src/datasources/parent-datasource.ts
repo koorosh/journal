@@ -4,7 +4,7 @@ import SqlDatasource from './sql-datasource'
 import { Person, Parent } from '../types'
 
 export class ParentDatasource extends SqlDatasource {
-  getParentsByStudentId(personId: string): Promise<Array<Person>> {
+  getParentsByStudentId(studentId: string): Promise<Array<Person>> {
     return this.db
       .select([
         'persons.id',
@@ -14,7 +14,8 @@ export class ParentDatasource extends SqlDatasource {
       ])
       .from('parents')
       .innerJoin('persons', 'parents.person_id', '=', 'persons.id')
-      .where('parents.child_id', '=', personId)
+      .innerJoin('students', 'students.person_id', '=', 'parents.child_id')
+      .where('students.id', '=', studentId)
       .then(records => {
         return records.map(record => ({
           id: record.id,

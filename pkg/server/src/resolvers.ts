@@ -16,6 +16,7 @@ const resolvers: GraphQLResolverMap<Context> = {
     parentsByStudentId: (_, { studentId }, { dataSources }) =>
       dataSources.parents.getParentsByStudentId(studentId),
     person: (_, { id }, { dataSources }) => dataSources.persons.findById(id),
+    absenceReport: (_, { id }, { dataSources }) => dataSources.absence.findById(id),
   },
   Mutation: {
     createStudent: (_, student, { dataSources }) =>
@@ -33,8 +34,7 @@ const resolvers: GraphQLResolverMap<Context> = {
     createStudentAttendanceReport: (_, { attendanceReport }, { dataSources }) =>
       dataSources.absence.createAbsentStudentRecord(attendanceReport),
     sendStudentAttendanceReport: async (_, {date, groupId, attendanceReportIds}, { dataSources }) => {
-      const reports = await dataSources.absence.getReportsByDateAndGroup(date, groupId, attendanceReportIds)
-      await dataSources.publisher.publish(Queues.ABSENT_STUDENT, { reports })
+      await Promise.all(attendanceReportIds.map(reportId => dataSources.publisher.publish(Queues.ABSENT_STUDENT, { reportId })))
     }
   }
 }

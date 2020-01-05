@@ -33,6 +33,27 @@ const resolvers: GraphQLResolverMap<Context> = {
       dataSources.publisher.publish(Queues.USER_ACCESS_CODE, { personId }),
     createStudentAttendanceReport: (_, { attendanceReport }, { dataSources }) =>
       dataSources.absence.createAbsentStudentRecord(attendanceReport),
+    createGroupAttendanceReport: async (_, { attendanceReport }, { dataSources }) => {
+      const {
+        absentStudentIds,
+        groupId,
+        lessonNo,
+        date,
+        subjectId,
+      } = attendanceReport
+
+      await Promise.all(absentStudentIds.map(record => {
+        const data = {
+          groupId,
+          studentId: record.studentId,
+          lessonNo,
+          date,
+          subjectId,
+          reason: record.absenceReason
+        }
+        return dataSources.absence.createAbsentStudentRecord(data)
+      }))
+    },
     sendStudentAttendanceReport: async (_, {date, groupId, attendanceReportIds}, { dataSources }) => {
       await Promise.all(attendanceReportIds.map(reportId => dataSources.publisher.publish(Queues.ABSENT_STUDENT, { reportId })))
     }

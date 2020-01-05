@@ -70,6 +70,19 @@ const typeDefs = gql`
     absenceReason: Int!
     date: Date!
   }
+  
+  input StudentAbsenceReasonMap {
+    studentId: ID!
+    absenceReason: Int!
+  }
+  
+  input AbsentGroupReport {
+    subjectId: ID!
+    groupId: ID!
+    lessonNo: Int!
+    date: Date!
+    absentStudentIds: [StudentAbsenceReasonMap]!
+  }
 
   type Mutation {
     createStudent(
@@ -94,6 +107,8 @@ const typeDefs = gql`
     initUserAccessCode(personId: ID!): Boolean
 
     createStudentAttendanceReport(attendanceReport: AbsentStudentReport!): Response
+    
+    createGroupAttendanceReport(attendanceReport: AbsentGroupReport!): Response
     
     sendStudentAttendanceReport(
       date: Date!

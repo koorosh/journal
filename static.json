@@ -1,0 +1,6 @@
+{
+  "root": "pkg/client/build/",
+  "routes": {
+    "/**": "index.html"
+  }
+}

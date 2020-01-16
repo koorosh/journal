@@ -1,21 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { gql } from 'apollo-boost'
 import { useQuery } from '@apollo/react-hooks'
+import { groupBy, map, last, chain, isEmpty } from 'lodash'
 import {
   Button,
   Checkbox,
-  Container,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow
+   Divider, List, ListItem, ListItemSecondaryAction, ListItemText,
+  Typography
 } from '@material-ui/core'
 
-import { Student } from '../../interfaces'
+import { getReasonName, Student } from '../../interfaces'
 import { Header } from '../../layout'
 
 
@@ -56,11 +51,7 @@ interface AttendanceReportResponse {
   getReportsByDateAndGroup: AttendanceRecord[]
 }
 
-interface PathWithId {
-  id: string
-}
-
-interface SelectedReportMap {
+interface SelectedStudentsMap {
   [id: string]: boolean
 }
 
@@ -79,14 +70,86 @@ export const AttendanceReport: React.FC = () => {
 
   const reports: AttendanceRecord[] = data.getReportsByDateAndGroup
 
-  const [selectedRecords, selectRecord] = useState<SelectedReportMap>({})
+  const [selectedStudents, selectStudent] = useState<SelectedStudentsMap>({})
 
-  const handleRecordSelection = (key: string) => {
-    selectRecord({
-      ...selectedRecords,
-      [key]: !selectedRecords[key]
-    })
-  }
+  const reportsByStudent = groupBy(reports, report => report.studentId)
+
+  const listItems = map(reportsByStudent, (studentReports, studentId) => {
+    const {
+      studentFirstName,
+      studentLastName,
+    } = studentReports[0]
+
+    const lessonRanges = chain(studentReports)
+      .sortBy('lessonNo')
+      .reduce((acc: Array<[number, number]>, item) => {
+        const currentLessonNo = item.lessonNo
+        const lastRange = last(acc)
+
+        if (isEmpty(acc) || lastRange === undefined) {
+          acc.push([currentLessonNo, currentLessonNo])
+          return acc
+        }
+
+        if ((lastRange[1] + 1) === currentLessonNo) {
+          lastRange[1] = currentLessonNo
+        } else {
+          acc.push([currentLessonNo, currentLessonNo])
+        }
+        return acc
+      }, [])
+      .map(lessonRange => {
+        if (lessonRange[0] === lessonRange[1]) return lessonRange[0]
+        return lessonRange.join(' - ')
+      })
+      .value()
+    const lessonRangesStr = lessonRanges.join(', ')
+
+    return (
+      <>
+        <ListItem
+          button
+          onClick={() => {
+            selectStudent({
+              ...selectedStudents,
+              [studentId]: !selectedStudents[studentId],
+            })
+          }}
+          key={studentId}
+        >
+          <ListItemText
+            primary={`${studentLastName} ${studentFirstName}`}
+            secondary={
+              <>
+                <Typography
+                  variant="body2"
+                >
+                  Пропущені уроки: {lessonRangesStr}
+                </Typography>
+                <Typography
+                  variant="body2"
+                >
+                  Дата: {new Date(Date.parse(date || '')).toLocaleDateString()}
+                </Typography>
+              </>
+            }
+          />
+          <ListItemSecondaryAction>
+            <Checkbox
+              checked={Boolean(selectedStudents[studentId])}
+              onChange={(e, checked) =>
+                selectStudent({
+                  ...selectedStudents,
+                  [studentId]: checked,
+                })}
+              // edge="end"
+            />
+          </ListItemSecondaryAction>
+        </ListItem>
+        <Divider />
+      </>
+    )
+  })
 
   return (
     <>
@@ -97,45 +160,13 @@ export const AttendanceReport: React.FC = () => {
             color="inherit"
             onClick={() => history.push('/')}
           >
-            Готово
+            Відправити
           </Button>
         }
       />
-      <Container maxWidth="sm">
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox"></TableCell>
-                <TableCell>Ім'я</TableCell>
-                <TableCell align="right">Предмет</TableCell>
-                <TableCell align="right">Причина</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {reports.map(report => (
-                <TableRow
-                  key={report.id}
-                  hover
-                  onClick={() => handleRecordSelection(report.id)}
-                  role="checkbox"
-                  aria-checked={Boolean(selectedRecords[report.id])}
-                  tabIndex={-1}
-                  selected={Boolean(selectedRecords[report.id])}>
-                  <TableCell padding="checkbox">
-                    <Checkbox checked={Boolean(selectedRecords[report.id])}/>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {`${report.studentLastName} ${report.studentFirstName}`}
-                  </TableCell>
-                  <TableCell align="right">{report.subjectName}</TableCell>
-                  <TableCell align="right">{report.absenceReason}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Container>
+      <List component="nav">
+        {listItems}
+      </List>
     </>
   )
 }

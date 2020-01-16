@@ -318,6 +318,7 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
         title="Перекличка"
         actionControl={
           <Button
+            color="inherit"
             onClick={onSubmit}
           >
             Зберегти

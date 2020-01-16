@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { gql } from 'apollo-boost'
 import { useQuery } from '@apollo/react-hooks'
 import {
+  Button,
   Checkbox,
   Container,
   Paper,
@@ -15,6 +16,7 @@ import {
 } from '@material-ui/core'
 
 import { Student } from '../../interfaces'
+import { Header } from '../../layout'
 
 
 // TODO: has to be queried from local state (saved right after the report created)
@@ -64,6 +66,7 @@ interface SelectedReportMap {
 
 export const AttendanceReport: React.FC = () => {
   const location = useLocation()
+  const history = useHistory()
   const params = new URLSearchParams(location.search)
   const groupId = params.get('groupId')
   const date = params.get('date')
@@ -87,6 +90,17 @@ export const AttendanceReport: React.FC = () => {
 
   return (
     <>
+      <Header
+        title="Результат"
+        actionControl={
+          <Button
+            color="inherit"
+            onClick={() => history.push('/')}
+          >
+            Готово
+          </Button>
+        }
+      />
       <Container maxWidth="sm">
         <TableContainer component={Paper}>
           <Table size="small">

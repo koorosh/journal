@@ -9,6 +9,7 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
   return (
     <>
       <Link to={'/attendance'}>Відвідуваність</Link>
+      <Link to={'/attendance/reports'}>Звіти відвідуваності</Link>
     </>
   )
 }

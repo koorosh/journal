@@ -26,7 +26,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/react-hooks'
 import { deepOrange, green } from '@material-ui/core/colors'
 
-import { Group, Reasons, Student, Subject } from '../../interfaces'
+import { Group, Reasons, Student, Subject, getReasonName } from '../../interfaces'
 import { Header } from '../../layout'
 
 interface AttendanceProps {
@@ -60,14 +60,15 @@ const useStyles = makeStyles((theme: Theme) =>
     checkedStudentAvatar: {
       color: theme.palette.getContrastText(deepOrange[500]),
       backgroundColor: deepOrange[500],
-      width: theme.spacing(3),
-      height: theme.spacing(3),
-      fontSize: theme.typography.pxToRem(14),
+      width: theme.spacing(4),
+      height: theme.spacing(4),
+      fontSize: theme.typography.pxToRem(18),
+      // marginLeft:
     },
     studentAvatar: {
-      width: theme.spacing(3),
-      height: theme.spacing(3),
-      fontSize: theme.typography.pxToRem(14),
+      width: theme.spacing(4),
+      height: theme.spacing(4),
+      fontSize: theme.typography.pxToRem(16),
     },
     drawer: {
       padding: theme.spacing(1)
@@ -396,34 +397,33 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
         }
       >
         {
-          students.map(student => (
-            <ListItem button onClick={toggleDrawer(true, 'absenceReason')}>
-              <ListItemText primary={`${student.person.lastName} ${student.person.firstName[0]}`} />
-              <ListItemSecondaryAction>
-                <Checkbox
-                  checked={selectedStudents[student.id] === 1}
-                  icon={<Avatar variant="square" className={classes.studentAvatar}>НБ</Avatar>}
-                  checkedIcon={<Avatar variant="square" className={classes.checkedStudentAvatar}>НБ</Avatar>}
-                  edge="end"
-                  onChange={toggleStudentSelection(student.id, 1)}
-                />
-                <Checkbox
-                  checked={selectedStudents[student.id] === 2}
-                  icon={<Avatar variant="square" className={classes.studentAvatar}>ХВ</Avatar>}
-                  checkedIcon={<Avatar variant="square" className={classes.checkedStudentAvatar}>ХВ</Avatar>}
-                  edge="end"
-                  onChange={toggleStudentSelection(student.id, 2)}
-                />
-                <Checkbox
-                  checked={selectedStudents[student.id] === 3}
-                  icon={<Avatar variant="square" className={classes.studentAvatar}>Пов</Avatar>}
-                  checkedIcon={<Avatar variant="square" className={classes.checkedStudentAvatar}>Пов</Avatar>}
-                  edge="end"
-                  onChange={toggleStudentSelection(student.id, 3)}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))
+          students.map(student => {
+
+            const reasons = [
+              Reasons.ABSENT,
+              Reasons.ILLNESS,
+              Reasons.IMPORTANT,
+            ]
+
+            const reasonOptions = reasons.map(reason => (
+              <Checkbox
+                checked={selectedStudents[student.id] === reason}
+                icon={<Avatar variant="square" className={classes.studentAvatar}>{getReasonName(reason)}</Avatar>}
+                checkedIcon={<Avatar variant="square" className={classes.checkedStudentAvatar}>{getReasonName(reason)}</Avatar>}
+                edge="end"
+                onChange={toggleStudentSelection(student.id, reason)}
+              />
+            ))
+
+            return (
+              <ListItem button onClick={toggleDrawer(true, 'absenceReason')}>
+                <ListItemText primary={`${student.person.lastName} ${student.person.firstName[0]}`} />
+                <ListItemSecondaryAction>
+                  { reasonOptions }
+                </ListItemSecondaryAction>
+              </ListItem>
+            )
+          })
         }
       </List>
       <Drawer

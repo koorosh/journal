@@ -165,10 +165,27 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
 
   useEffect(() => {
     if (!selectedGroup) return
+    setSelectedStudents({})
     queryStudents({
       variables: { groupId: selectedGroup.id },
     })
   }, [selectedGroup])
+
+  useEffect(() => {
+    const isCompletedForm = Boolean(selectedDate)
+      && Boolean(selectedSubject)
+      && Boolean(selectedLessonNo)
+      && Boolean(selectedStudents)
+      && Boolean(selectedGroup)
+
+    setCanSubmit(isCompletedForm)
+  }, [
+    selectedDate,
+    selectedSubject,
+    selectedLessonNo,
+    selectedStudents,
+    selectedGroup
+  ])
 
   const toggleStudentSelection = (studentId: string, reason: number) =>
     (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -180,7 +197,7 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
 
   const [saveAttendance] = useMutation(CREATE_ATTENDANCE, {
     variables: {
-      groupId: selectedGroup,
+      groupId: selectedGroup ? selectedGroup.id : undefined,
       subjectId: selectedSubject ? selectedSubject.id : undefined,
       lessonNo: selectedLessonNo,
       date: selectedDate,
@@ -189,6 +206,8 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
         .map(([studentId, absenceReason]) => ({ studentId, absenceReason })),
     },
   })
+
+  const [canSubmit, setCanSubmit] = useState<boolean>(false)
 
   const onSubmit = React.useCallback(async () => {
     await saveAttendance()
@@ -203,7 +222,7 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
     history.push(location)
   }, [
     selectedDate,
-    selectedSubject ? selectedSubject.id : undefined,
+    selectedSubject,
     selectedLessonNo,
     selectedStudents,
     selectedGroup
@@ -318,6 +337,7 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
         title="Перекличка"
         actionControl={
           <Button
+            disabled={!canSubmit}
             color="inherit"
             onClick={onSubmit}
           >

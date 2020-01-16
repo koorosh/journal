@@ -3,20 +3,19 @@ import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 
-import { Footer } from './footer'
-
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
   },
   content: {
     flexGrow: 1,
-    height: '100vh',
     overflow: 'auto',
   },
   container: {
-    paddingTop: theme.spacing(4),
+    paddingTop: theme.spacing(8),
     paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(0),
+    paddingRight: theme.spacing(0),
   },
 }));
 
@@ -30,11 +29,10 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
     <div className={classes.root}>
       <CssBaseline />
       <main className={classes.content}>
-        <Container maxWidth="lg" className={classes.container}>
+        <Container maxWidth="sm" className={classes.container}>
           { props.children }
         </Container>
       </main>
-      <Footer/>
     </div>
   );
 }

@@ -17,6 +17,22 @@ const resolvers: GraphQLResolverMap<Context> = {
       dataSources.parents.getParentsByStudentId(studentId),
     person: (_, { id }, { dataSources }) => dataSources.persons.findById(id),
     absenceReport: (_, { id }, { dataSources }) => dataSources.absence.findById(id),
+    absenceReportExt: async (_, { id }, { dataSources }) => {
+      const report = await dataSources.absence.findById(id)
+      const [student, group, subject] = await Promise.all([
+        dataSources.students.findById(report.studentId),
+        dataSources.groups.findById(report.groupId),
+        dataSources.subjects.findById(report.subjectId)
+      ])
+      return {
+        ...report,
+        student,
+        group,
+        subject
+      }
+    },
+    getReportsByDateAndGroup: (_, { groupId, date }, { dataSources }) =>
+      dataSources.absence.getReportsByDateAndGroup(date, groupId)
   },
   Mutation: {
     createStudent: (_, student, { dataSources }) =>

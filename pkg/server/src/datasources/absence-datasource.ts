@@ -29,25 +29,26 @@ export class AbsenceDatasource extends SqlDatasource {
     }
   }
 
-  // TODO (koorosh): Unused method. Has to be removed
-  async getReportsByDateAndGroup(date: Date, groupId: string, attendanceReportIds: string[]) {
+  async getReportsByDateAndGroup(date: Date, groupId: string) {
     const reports = await this.db
       .select([
+        'absent_students.id AS id',
         'students.id AS studentId',
         'absent_students.lesson_no AS lessonNo',
         'absent_students.date',
         'absent_students.reason AS absenceReason',
-        'groups.name AS group',
+        'groups.id AS groupId',
+        'groups.name AS groupName',
         'persons.first_name AS studentFirstName',
         'persons.last_name AS studentLastName',
-        'subjects.name AS subject',
+        'subjects.id AS subjectId',
+        'subjects.name AS subjectName',
       ])
       .table('absent_students')
       .innerJoin('students', 'absent_students.student_id', 'students.id')
       .innerJoin('groups', 'absent_students.group_id', 'groups.id')
       .innerJoin('subjects', 'absent_students.subject_id', 'subjects.id')
       .innerJoin('persons', 'students.person_id', 'persons.id')
-      .whereIn('absent_students.id', attendanceReportIds)
       .andWhere({
         'absent_students.date': date,
         'absent_students.group_id': groupId

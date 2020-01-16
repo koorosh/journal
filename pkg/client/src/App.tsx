@@ -5,7 +5,7 @@ import { ApolloProvider } from '@apollo/react-hooks'
 import './App.css';
 import client from './graphql-client'
 
-import { Attendance, Home } from './views'
+import { Attendance, AttendanceReport, Home } from './views'
 import { Layout } from './layout'
 
 const App: React.FC = () => {
@@ -14,6 +14,9 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Layout>
           <Switch>
+            <Route path="/attendance/report">
+              <AttendanceReport />
+            </Route>
             <Route path="/attendance">
               <Attendance />
             </Route>

@@ -1,10 +1,9 @@
 import React from 'react'
-import { AppBar, Fab, IconButton, Toolbar } from '@material-ui/core'
+import { BottomNavigation, BottomNavigationAction } from '@material-ui/core'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu'
-import AddIcon from '@material-ui/icons/Add'
-import SearchIcon from '@material-ui/icons/Search'
-import MoreIcon from '@material-ui/icons/MoreVert'
+import { useLocation, useHistory } from "react-router-dom"
+import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined'
+import PeopleAltOutlinedIcon from '@material-ui/icons/PeopleAltOutlined'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -38,25 +37,18 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export const Footer: React.FC<any> = (props: any) => {
+export const Footer: React.FC = () => {
   const classes = useStyles()
+  const location = useLocation()
+  const history = useHistory()
+
+  const handleNavigationChange = (event: React.ChangeEvent<{}>, path: string) => {
+    history.push(path)
+  }
   return (
-    <AppBar position="fixed" color="primary" className={classes.appBar}>
-      <Toolbar>
-        <IconButton edge="start" color="inherit" aria-label="open drawer">
-          <MenuIcon />
-        </IconButton>
-        <Fab color="secondary" aria-label="add" className={classes.fabButton}>
-          <AddIcon />
-        </Fab>
-        <div className={classes.grow} />
-        <IconButton color="inherit">
-          <SearchIcon />
-        </IconButton>
-        <IconButton edge="end" color="inherit">
-          <MoreIcon />
-        </IconButton>
-      </Toolbar>
-    </AppBar>
+    <BottomNavigation value={location.pathname} onChange={handleNavigationChange}>
+      <BottomNavigationAction label="Головна" value="/" icon={<HomeOutlinedIcon />} />
+      <BottomNavigationAction label="Відвідуваність" value="/attendance" icon={<PeopleAltOutlinedIcon />} />
+    </BottomNavigation>
   )
 }

@@ -13,6 +13,8 @@ const typeDefs = gql`
     subjects: [Subject]
     parentsByStudentId(studentId: ID!): [Person]
     absenceReport(id: ID!): AbsentReport
+    absenceReportExt(id: ID!): AbsentReportExt
+    getReportsByDateAndGroup(groupId: ID!, date: Date!): [ReportsByDateAndGroupResponse]
   }
 
   scalar Date
@@ -60,6 +62,32 @@ const typeDefs = gql`
     lessonNo: Int!
     absenceReason: Int!
     date: Date!
+  }
+  
+  type AbsentReportExt {
+    id: ID!
+    student: Student!
+    subjectId: Subject
+    groupId: Group!
+    lessonNo: Int
+    absenceReason: Int!
+    date: Date!
+    group: Group!
+    subject: Subject!
+  }
+  
+  type ReportsByDateAndGroupResponse {
+    id: ID!
+    studentId: ID!
+    lessonNo: Int!
+    date: Date!
+    absenceReason: Int!
+    groupId: ID!
+    groupName: String!
+    studentFirstName: String!
+    studentLastName: String!
+    subjectId: ID
+    subjectName: String
   }
   
   input AbsentStudentReport {

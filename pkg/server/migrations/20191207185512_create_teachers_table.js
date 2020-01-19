@@ -1,4 +1,4 @@
-const tableName = 'subscribers'
+const tableName = 'teachers'
 
 exports.up = function(knex) {
   return knex.schema.createTable(tableName, t => {
@@ -7,9 +7,6 @@ exports.up = function(knex) {
       .references('id')
       .inTable('persons')
       .onDelete('CASCADE')
-    t.boolean('is_active')
-    t.dateTime('subscribed_on').notNullable()
-    t.dateTime('unsubscribed_on')
   })
 }
 

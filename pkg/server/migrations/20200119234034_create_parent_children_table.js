@@ -1,15 +1,15 @@
-const tableName = 'subscribers'
+const tableName = 'parent_children'
 
 exports.up = function(knex) {
   return knex.schema.createTable(tableName, t => {
-    t.uuid('id').primary()
-    t.uuid('person_id')
+    t.uuid('parent_id')
+      .references('id')
+      .inTable('parents')
+      .onDelete('CASCADE')
+    t.uuid('child_person_id')
       .references('id')
       .inTable('persons')
       .onDelete('CASCADE')
-    t.boolean('is_active')
-    t.dateTime('subscribed_on').notNullable()
-    t.dateTime('unsubscribed_on')
   })
 }
 

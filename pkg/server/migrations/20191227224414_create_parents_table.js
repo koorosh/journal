@@ -7,11 +7,6 @@ exports.up = function(knex) {
       .references('id')
       .inTable('persons')
       .onDelete('CASCADE')
-    t.uuid('child_id')
-      .references('id')
-      .inTable('persons')
-      .onDelete('CASCADE')
-    t.string('relationship')
   })
 }
 

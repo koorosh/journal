@@ -15,6 +15,7 @@ const typeDefs = gql`
     absenceReport(id: ID!): AbsentReport
     absenceReportExt(id: ID!): AbsentReportExt
     getReportsByDateAndGroup(groupId: ID!, date: Date!): [ReportsByDateAndGroupResponse]
+    lessonsByTeacher(teacherId: ID!, date: Date): [Lesson]
   }
 
   scalar Date
@@ -42,6 +43,15 @@ const typeDefs = gql`
     year: Int!
   }
   
+  type Lesson {
+    id: ID!
+    subject: Subject
+    teacher: Teacher
+    group: Group
+    date: Date
+    orderNo: Int
+  }
+  
   type Subject {
     id: ID!
     name: String
@@ -50,8 +60,11 @@ const typeDefs = gql`
   type Parent {
     id: ID!
     person: Person!
-    child: Person!
-    relationship: String!
+  }
+  
+  type Teacher {
+    id: ID!
+    person: Person!
   }
   
   type AbsentReport {
@@ -126,6 +139,12 @@ const typeDefs = gql`
       relationship: String!
       childPersonId: ID!
     ): Parent
+    
+    createTeacher(
+      firstName: String!
+      lastName: String!
+      phone: String
+    ): Teacher
 
     createGroup(
       name: String!
@@ -135,8 +154,16 @@ const typeDefs = gql`
     initUserAccessCode(personId: ID!): Boolean
 
     createStudentAttendanceReport(attendanceReport: AbsentStudentReport!): Response
-    
+
     createGroupAttendanceReport(attendanceReport: AbsentGroupReport!): Response
+    
+    createLesson(
+      subjectId: ID!
+      groupId: ID!
+      teacherId: ID!
+      orderNo: Int!
+      date: Date!
+    ): Lesson
     
     sendStudentAttendanceReport(
       date: Date!

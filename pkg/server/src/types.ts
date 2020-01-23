@@ -5,14 +5,8 @@ import {
   StudentDatasource,
   SubjectDatasource,
   PersonDatasource,
-  Publisher,
+  Publisher, ClientDatasource,
 } from './datasources'
-
-export type ID = string
-
-export interface Record {
-  id: ID
-}
 
 export interface DatasourceMap {
   students: StudentDatasource,
@@ -21,7 +15,8 @@ export interface DatasourceMap {
   absence: AbsenceDatasource,
   parents: ParentDatasource,
   persons: PersonDatasource,
-  publisher: Publisher
+  publisher: Publisher,
+  client: ClientDatasource,
 }
 
 export interface Context {
@@ -50,23 +45,13 @@ export interface Parent {
   id: string
   person: Person
   child: Person
-  relationship: string
-}
-
-export enum AbsenceReason {
-  UNKNOWN = 0,
-  ILLNESS = 1,
-  PERSONAL = 2,
 }
 
 export interface Absence {
   id: string
   studentId: string
-  subjectId: string
-  groupId: string
-  date: Date
-  lessonNo: number
-  reason: AbsenceReason
+  lessonId: string
+  reason: 'illness' | 'important' | 'no_reason' | undefined
 }
 
 export interface Person {
@@ -74,4 +59,18 @@ export interface Person {
   firstName: string
   lastName: string
   phone: string
+}
+
+export interface Lesson {
+  id: string
+  orderNo: number
+  subjectId: string
+  groupId: string
+  teacherId: string
+  date: Date
+}
+
+export interface Teacher {
+  id: string
+  personId: string
 }

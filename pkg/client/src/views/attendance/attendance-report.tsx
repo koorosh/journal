@@ -142,7 +142,6 @@ export const AttendanceReport: React.FC = () => {
                   ...selectedStudents,
                   [studentId]: checked,
                 })}
-              // edge="end"
             />
           </ListItemSecondaryAction>
         </ListItem>

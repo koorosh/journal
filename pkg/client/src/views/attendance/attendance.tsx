@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { MouseEventHandler, useEffect, useState } from 'react'
 import {
   Avatar,
   Button,
@@ -26,7 +26,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/react-hooks'
 import { deepOrange, green } from '@material-ui/core/colors'
 
-import { Group, Reasons, Student, Subject, getReasonName } from '../../interfaces'
+import { Group, Student, Subject } from '../../interfaces'
 import { Header } from '../../layout'
 
 interface AttendanceProps {
@@ -34,7 +34,7 @@ interface AttendanceProps {
 }
 
 interface StudentsMap {
-  [studentId: string]: Reasons | undefined
+  [studentId: string]: boolean
 }
 
 interface StudentsQueryData {
@@ -130,7 +130,7 @@ const CREATE_ATTENDANCE = gql`
 
 const lessonsNo = [1, 2, 3, 4, 5, 6, 7]
 
-type DrawerContentView = 'date' | 'lessons' | 'subjects' | 'groups' | 'absenceReason'
+type DrawerContentView = 'date' | 'lessons' | 'subjects' | 'groups'
 
 export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) => {
   const classes = useStyles()
@@ -188,11 +188,11 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
     selectedGroup
   ])
 
-  const toggleStudentSelection = (studentId: string, reason: number) =>
-    (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+  const toggleStudentSelection = (studentId: string) =>
+    (_event: React.MouseEvent<HTMLElement>) => {
       setSelectedStudents(prevState => ({
         ...prevState,
-        [studentId]: checked ? reason : undefined,
+        [studentId]: !prevState[studentId],
       }))
     }
 
@@ -317,14 +317,6 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
             }
           </List>
         )
-      case 'absenceReason':
-        return (
-          <Paper >
-            <Chip label="НБ" />
-            <Chip label="Хвор" />
-            <Chip label="Пов прич" />
-          </Paper>
-        )
       default:
         return null
     }
@@ -397,31 +389,17 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
         }
       >
         {
-          students.map(student => {
-
-            const reasons = [
-              Reasons.ABSENT,
-              Reasons.ILLNESS,
-              Reasons.IMPORTANT,
-            ]
-
-            const reasonOptions = reasons.map(reason => (
-              <Checkbox
-                checked={selectedStudents[student.id] === reason}
-                icon={<Avatar variant="square" className={classes.studentAvatar}>{getReasonName(reason)}</Avatar>}
-                checkedIcon={<Avatar variant="square" className={classes.checkedStudentAvatar}>{getReasonName(reason)}</Avatar>}
-                edge="end"
-                onChange={toggleStudentSelection(student.id, reason)}
-              />
-            ))
-
+          students.map((student, idx) => {
             return (
-              <ListItem button onClick={toggleDrawer(true, 'absenceReason')}>
-                <ListItemText primary={`${student.person.lastName} ${student.person.firstName[0]}`} />
-                <ListItemSecondaryAction>
-                  { reasonOptions }
-                </ListItemSecondaryAction>
-              </ListItem>
+              <>
+                <ListItem button onClick={toggleStudentSelection(student.id)} key={idx}>
+                  <ListItemText primary={`${student.person.lastName} ${student.person.firstName[0]}`} />
+                  <ListItemSecondaryAction hidden={!selectedStudents[student.id]}>
+                    <Avatar>H</Avatar>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+              </>
             )
           })
         }

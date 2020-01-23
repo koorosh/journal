@@ -2,8 +2,9 @@ import React from 'react'
 import { AppBar, createStyles, makeStyles, Theme, Toolbar, Typography } from '@material-ui/core'
 
 export interface HeaderProps {
+  backButton?: boolean
   title: string
-  actionControl: React.ReactElement | null
+  actionControl?: React.ReactElement | null
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -16,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const Header: React.FC<HeaderProps> = (props: HeaderProps) => {
   const classes = useStyles()
-  const { title, actionControl } = props
+  const { title, actionControl, backButton } = props
   return (
     <AppBar position="fixed">
       <Toolbar>
@@ -35,5 +36,6 @@ export const Header: React.FC<HeaderProps> = (props: HeaderProps) => {
 }
 
 Header.defaultProps = {
-  actionControl: null
+  actionControl: null,
+  backButton: false,
 }

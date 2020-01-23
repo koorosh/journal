@@ -26,7 +26,7 @@ export class ParentDatasource extends SqlDatasource {
       })
   }
 
-  create(firstName: string, lastName: string, phone: string, childPersonId: string, relationship: string): Promise<Parent> {
+  create(firstName: string, lastName: string, phone: string, childPersonId: string): Promise<Parent> {
     return this.db.transaction(async (trx) => {
       const personId = uuid()
       const parentId = uuid()
@@ -43,6 +43,11 @@ export class ParentDatasource extends SqlDatasource {
         .insert({
           id: parentId,
           person_id: personId,
+        })
+
+      await trx.table('parent_children')
+        .insert({
+          parent_id: parentId,
           child_id: childPersonId
         })
 
@@ -64,7 +69,6 @@ export class ParentDatasource extends SqlDatasource {
           lastName: childPerson.last_name,
           phone: childPerson.phone,
         },
-        relationship
       }
     })
   }

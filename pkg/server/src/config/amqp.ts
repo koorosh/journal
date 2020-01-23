@@ -33,13 +33,3 @@ export function listenToQueue<T>(queue: Queues): Observable<T> {
   return source$.asObservable()
 }
 
-const closeConnection = () => {
-  connection.then(async channel => {
-    await channel.close()
-    console.info(`Closing Amqp channel`)
-  })
-}
-
-process.on('SIGTERM', closeConnection)
-process.on('SIGINT', closeConnection)
-process.on('exit', closeConnection)

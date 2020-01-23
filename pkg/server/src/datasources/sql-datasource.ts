@@ -24,10 +24,6 @@ abstract class SqlDatasource extends DataSource {
     );
 
     this.cache = new InMemoryLRUCache<string>()
-
-    process.on('SIGTERM', this.closeConnection)
-    process.on('SIGINT', this.closeConnection)
-    process.on('exit', this.closeConnection)
   }
 
   protected context: any
@@ -38,10 +34,6 @@ abstract class SqlDatasource extends DataSource {
   initialize({ cache, context }: DataSourceConfig<Context>) {
     this.context = context;
     this.cache = cache || new InMemoryLRUCache()
-  }
-
-  private closeConnection() {
-    this.db.destroy(() => console.info('DB connection is closed'))
   }
 }
 

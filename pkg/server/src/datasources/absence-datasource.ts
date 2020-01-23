@@ -5,11 +5,8 @@ import { Absence, WithoutId } from '../types'
 
 export class AbsenceDatasource extends SqlDatasource {
   async createAbsentStudentRecord({
-                                    groupId,
+                                    lessonId,
                                     studentId,
-                                    lessonNo,
-                                    date,
-                                    subjectId,
                                     reason
                                   }: WithoutId<Absence>) {
     const absenceId = uuid()
@@ -18,10 +15,7 @@ export class AbsenceDatasource extends SqlDatasource {
       .insert({
         id: absenceId,
         student_id: studentId,
-        group_id: groupId,
-        lesson_no: lessonNo,
-        subject_id: subjectId,
-        date,
+        lesson_id: lessonId,
         reason
       })
     return {

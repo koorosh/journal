@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server'
 
 import typeDefs from './schema'
 import {
-  AbsenceDatasource,
+  AbsenceDatasource, ClientDatasource,
   GroupDatasource,
   ParentDatasource,
   PersonDatasource,
@@ -24,7 +24,8 @@ const server = new ApolloServer({
     absence: new AbsenceDatasource(),
     parents: new ParentDatasource(),
     persons: new PersonDatasource(),
-    publisher: new Publisher()
+    publisher: new Publisher(),
+    client: new ClientDatasource(),
   }),
 })
 

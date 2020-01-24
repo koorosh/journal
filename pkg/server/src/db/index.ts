@@ -21,7 +21,7 @@ mongoose.connection.on('error', (error) => {
 })
 
 export const connectToDb = async () => {
-  await mongoose.connect('mongodb://admin:admin@localhost/journal', {
+  await mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,

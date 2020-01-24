@@ -1,13 +1,14 @@
-import React, { MouseEvent, useState } from 'react'
+import React, { MouseEvent, useEffect, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { Button, List, ListItem, ListItemText } from '@material-ui/core'
-import { useQuery } from '@apollo/react-hooks'
+import { useLazyQuery, useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { groupBy } from 'lodash'
 
 import { Header } from '../../layout'
 import { DateNavigator } from '../../components/date-navigator'
 import { Lesson } from '../../interfaces'
+import { useCurrentTeacher } from '../../hooks/use-current-teacher'
 
 interface HomeProps {
 
@@ -19,7 +20,7 @@ const TEACHER_LESSONS_FOR_DAY_QUERY = gql`
   query lessonsByTeacher($teacherId: ID!, $date: Date!) {
     lessonsByTeacher(teacherId: $teacherId, date: $date) {
       id
-      orderNo
+      order
       group {
         id
         name
@@ -40,38 +41,56 @@ const TEACHER_LESSONS_FOR_DAY_QUERY = gql`
   }
 `
 
+interface LessonsByTeacherResponse {
+  lessonsByTeacher: Array<Lesson>
+}
+
 export const Home: React.FC<HomeProps> = (props: HomeProps) => {
   const history = useHistory()
   const [date, setDate] = useState<Date>(new Date())
-  const teacherId = '59069b67-8c2e-401d-aecd-e9e892bf6707'
+  const [teacher] = useCurrentTeacher()
 
-  const { error, loading, data } = useQuery<{ lessonsByTeacher: Array<Lesson> }>(
+  const [queryLessonsByTeacherId, { loading, data }] = useLazyQuery<LessonsByTeacherResponse>(
     TEACHER_LESSONS_FOR_DAY_QUERY,
-    { variables: {
-        teacherId,
+    {
+      variables: {
+        teacherId: teacher?.id,
         date
-      }})
+      }
+    }
+  )
+
+  useEffect(() => {
+    if (!!teacher?.id) {
+      queryLessonsByTeacherId()
+    }
+  }, [teacher?.id, date])
 
   const handleLessonClick = (lesson: Partial<Lesson>) => (e: MouseEvent<HTMLElement>) => {
     if (lesson.id) {
-      history.push(`lesson/${lesson.id}`)
+      history.push(`/lesson/${lesson.id}`)
     } else {
-      history.push(`lesson/new`, { initialLesson: lesson })
+      history.push(`/lesson/new`, { initialLesson: lesson })
     }
   }
 
-  if (loading) return null
-  if (error) return null
   if (!data) return null
-  
-  const emptyLesson: Partial<Lesson> = {
-    date,
-  }
 
-  const lessonsByOrder = groupBy(data.lessonsByTeacher, lesson => lesson.orderNo)
+  const lessonsByOrder = groupBy(data.lessonsByTeacher, lesson => lesson.order)
   const lessonsList = new Array(LESSONS_PER_DAY_COUNT)
-    .fill(emptyLesson)
-    .map((item: Partial<Lesson>, idx) => lessonsByOrder[idx][0] || item) // fix
+    .fill(1)
+    .map((_, idx) => {
+      const order = idx + 1
+      if (lessonsByOrder[order] === undefined) {
+        const emptyLesson: Partial<Lesson> = {
+          order: order,
+          date,
+        }
+        return emptyLesson
+      } else {
+        return lessonsByOrder[order][0]
+      }
+    })
   
   return (
     <>
@@ -85,25 +104,25 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
         />
         <List component="nav">
           {
-            lessonsList.map((lesson: Lesson, idx) => {
+            lessonsList.map(lesson => {
               if (lesson.id) {
                 return (
                   <ListItem
-                    key={lesson.orderNo}
+                    key={lesson.order}
                     button
                     onClick={handleLessonClick(lesson)}
                   >
-                    <ListItemText primary={lesson.orderNo} />
+                    <ListItemText primary={`${lesson.order} - ${lesson?.subject?.name} - ${lesson?.group?.name}`} />
                   </ListItem>
                 )
               } else {
                 return (
                   <ListItem
-                    key={lesson.orderNo}
+                    key={lesson.order}
                     button
                     onClick={handleLessonClick(lesson)}
                   >
-                    <ListItemText primary={lesson.orderNo} />
+                    <ListItemText primary={lesson.order} />
                   </ListItem>
                 )
               }

@@ -1,37 +1,23 @@
-import SqlDatasource from './sql-datasource'
-import {Subject} from '../types'
-import uuid from 'uuid'
+import { DataSource } from 'apollo-datasource'
+import { Subject, SubjectsModel } from '../models'
 
-export class SubjectDatasource extends SqlDatasource {
-  selectAll(): Promise<Array<Subject>> {
-    return this.db.from('subjects')
-      .then(records => records.map(SubjectDatasource.subjectReducer))
+export class SubjectDataSource extends DataSource {
+  async selectAll(): Promise<Array<Subject>> {
+    const subjects = await SubjectsModel.find(
+      {},
+      (err, records) => records.map(record => record.toObject())
+    )
+    return subjects
   }
 
-  findById(id: string) {
-    return this.db
-      .from('subjects')
-      .where({
-        id
-      })
-      .first()
-      .then(SubjectDatasource.subjectReducer)
+  async findById(id: string): Promise<Subject> {
+    const subject = await SubjectsModel.findById(id)
+    return subject.toObject()
   }
 
-  async create({name}: Partial<Subject>): Promise<string> {
-    const id = uuid()
-    await this.db.table('subjects').insert({
-      id,
-      name
-    })
-    return id
-  }
-
-  static subjectReducer(record: any): Subject {
-    const { id, name } = record
-    return {
-      id,
-      name,
-    }
+  async create(name: string): Promise<Subject> {
+    const subjectModel = new SubjectsModel({ name })
+    const subject = await subjectModel.save()
+    return subject.toObject()
   }
 }

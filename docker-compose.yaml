@@ -1,30 +1,6 @@
 version: '3.7'
 
 services:
-  journal_db:
-    image: postgres:alpine
-    restart: on-failure
-    container_name: journal_pg_db
-    environment:
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
-      POSTGRES_DB: journal_db
-    volumes:
-      - journal_pg_data:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
-  sender_db:
-    image: postgres:alpine
-    restart: on-failure
-    container_name: sender_pg_db
-    environment:
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
-      POSTGRES_DB: sender_db
-    volumes:
-      - sender_pg_data:/var/lib/postgresql/data
-    ports:
-      - 6432:5432
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -36,9 +12,35 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+  mongo:
+    image: mongo
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: journal
+      MONGO_NON_ROOT_USERNAME: admin
+      MONGO_NON_ROOT_PASSWORD: admin
+    ports:
+      - 27017:27017
+    volumes:
+      - journal_mongo_data:/data/db
+      - ./configs/docker/mongodb/custom-user.sh:/docker-entrypoint-initdb.d/custom-user.sh
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+    depends_on:
+      - mongo
 
 volumes:
   journal_pg_data:
   sender_pg_data:
+  journal_mongo_data:
 
 

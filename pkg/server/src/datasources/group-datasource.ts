@@ -1,48 +1,35 @@
-import SqlDatasource from './sql-datasource'
-import {Group} from '../types'
-import uuid from 'uuid'
+import { DataSource } from 'apollo-datasource'
+import { Group, GroupsModel } from '../models'
 
-export class GroupDatasource extends SqlDatasource {
-  selectAll(): Promise<Array<Group>> {
-    return this.db.from('groups')
-      .then(records => records.map(GroupDatasource.groupReducer))
+export class GroupDataSource extends DataSource {
+  async selectAll(): Promise<Array<Group>> {
+    const groups = await GroupsModel.find({}).exec()
+    return groups
   }
 
-  findById(id: string) {
-    return this.db
-      .from('groups')
-      .where({
-        id
-      })
-      .first()
-      .then(GroupDatasource.groupReducer)
+  async findById(id: string): Promise<Group> {
+    const group = await GroupsModel.findById(id).exec()
+    return group.toObject()
   }
 
   async findByYear(year: number): Promise<Group[]> {
-    return this.db.from('groups')
-      .where({ year })
+    const groups = await GroupsModel.find(
+      { year },
+      (err, records) => records.map(record => record.toObject()))
+      .exec()
+    return groups
   }
 
-  async groupsThisYear(): Promise<Group[]> {
-    const year = new Date().getFullYear()
-    return this.findByYear(year)
+  async create(name: string, year: number): Promise<Group> {
+    const groupModel = new GroupsModel({ name, year })
+    const group = await groupModel.save()
+    return group.toObject()
   }
 
-  async create({name}: Partial<Group>): Promise<string> {
-    const id = uuid()
-    await this.db.table('groups').insert({
-      id,
-      name
-    })
-    return id
-  }
-
-  static groupReducer(groupRecord: any): Group {
-    const { id, name, year } = groupRecord
-    return {
-      id: id,
-      name: name,
-      year
-    }
+  async addStudent(groupId: string, studentId: string): Promise<Group> {
+    const group = await GroupsModel
+      .findByIdAndUpdate(groupId, { '$addToSet': { 'students': studentId } }, { runValidators: true })
+      .exec()
+    return group.toObject()
   }
 }

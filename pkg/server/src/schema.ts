@@ -3,6 +3,7 @@ import { gql } from 'apollo-server'
 const typeDefs = gql`
   type Query {
     students: [Student]
+    persons: [Person]
     student(id: ID!): Student
     person(id: ID!): Person
     studentsInGroup(groupId: ID!): [Student]
@@ -11,11 +12,12 @@ const typeDefs = gql`
     groupsByYear(year: Int!): [Group]
     groupsThisYear: [Group]
     subjects: [Subject]
+    teachers: [Teacher]
+    currentTeacher: Teacher
     parentsByStudentId(studentId: ID!): [Person]
-    absenceReport(id: ID!): AbsentReport
-    absenceReportExt(id: ID!): AbsentReportExt
-    getReportsByDateAndGroup(groupId: ID!, date: Date!): [ReportsByDateAndGroupResponse]
-    lessonsByTeacher(teacherId: ID!, date: Date): [Lesson]
+    attendancesByGroupIdAndDate(groupId: ID!, date: Date!): [Attendance]
+    lessonsByTeacher(teacherId: ID!, date: Date!): [Lesson]
+    lesson(id: ID!): Lesson
   }
 
   scalar Date
@@ -30,17 +32,20 @@ const typeDefs = gql`
     firstName: String!
     lastName: String!
     phone: String
+    parents: [Parent]
   }
 
   type Student {
     id: ID!
     person: Person!
+    group: Group
   }
 
   type Group {
     id: ID!
     name: String!
     year: Int!
+    students: [Student]
   }
   
   type Lesson {
@@ -49,7 +54,7 @@ const typeDefs = gql`
     teacher: Teacher
     group: Group
     date: Date
-    orderNo: Int
+    order: Int
   }
   
   type Subject {
@@ -67,62 +72,17 @@ const typeDefs = gql`
     person: Person!
   }
   
-  type AbsentReport {
-    id: ID!
-    studentId: ID!
-    subjectId: ID!
-    groupId: ID!
-    lessonNo: Int!
-    absenceReason: Int!
-    date: Date!
-  }
-  
-  type AbsentReportExt {
+  type Attendance {
     id: ID!
     student: Student!
-    subjectId: Subject
-    groupId: Group!
-    lessonNo: Int
-    absenceReason: Int!
-    date: Date!
-    group: Group!
-    subject: Subject!
+    lesson: Lesson!
+    reason: String
   }
   
-  type ReportsByDateAndGroupResponse {
-    id: ID!
+  input CreateAttendancePayload {
+    lessonId: ID!
     studentId: ID!
-    lessonNo: Int!
-    date: Date!
-    absenceReason: Int!
-    groupId: ID!
-    groupName: String!
-    studentFirstName: String!
-    studentLastName: String!
-    subjectId: ID
-    subjectName: String
-  }
-  
-  input AbsentStudentReport {
-    studentId: ID!
-    subjectId: ID!
-    groupId: ID!
-    lessonNo: Int!
-    absenceReason: Int!
-    date: Date!
-  }
-  
-  input StudentAbsenceReasonMap {
-    studentId: ID!
-    absenceReason: Int!
-  }
-  
-  input AbsentGroupReport {
-    subjectId: ID!
-    groupId: ID!
-    lessonNo: Int!
-    date: Date!
-    absentStudentIds: [StudentAbsenceReasonMap]!
+    reason: String
   }
 
   type Mutation {
@@ -130,6 +90,7 @@ const typeDefs = gql`
       firstName: String!
       lastName: String!
       phone: String
+      groupId: ID
     ): Student
     
     createParent(
@@ -151,25 +112,32 @@ const typeDefs = gql`
       year: Int!
     ): Group
     
+    addStudentToGroup(
+      groupId: ID!
+      studentId: ID!
+    ): Group
+    
+    createSubject(
+      name: String!
+    ): Subject
+    
     initUserAccessCode(personId: ID!): Boolean
-
-    createStudentAttendanceReport(attendanceReport: AbsentStudentReport!): Response
-
-    createGroupAttendanceReport(attendanceReport: AbsentGroupReport!): Response
     
     createLesson(
       subjectId: ID!
       groupId: ID!
       teacherId: ID!
-      orderNo: Int!
+      order: Int!
       date: Date!
     ): Lesson
     
-    sendStudentAttendanceReport(
-      date: Date!
-      groupId: ID!
-      attendanceReportIds: [ID]!
-    ): Boolean
+    createAttendance(
+      attendance: CreateAttendancePayload!
+    ): Attendance
+    
+    createBatchAttendances(
+      attendances: [CreateAttendancePayload]!
+    ): [Attendance]
   }
 
   type Response {

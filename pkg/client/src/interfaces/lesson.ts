@@ -4,7 +4,7 @@ import { Teacher } from './teacher'
 
 export interface Lesson {
   id: string
-  orderNo: number
+  order: number
   group: Group
   subject: Subject
   teacher: Teacher

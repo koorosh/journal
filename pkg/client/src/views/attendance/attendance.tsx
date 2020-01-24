@@ -1,4 +1,5 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react'
+import { chain } from 'lodash'
 import {
   Avatar,
   Button,
@@ -22,28 +23,17 @@ import {
 import DateFnsUtils from '@date-io/date-fns'
 import ukLocale from 'date-fns/locale/uk'
 import { gql } from 'apollo-boost'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory, useLocation, useParams } from 'react-router-dom'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/react-hooks'
 import { deepOrange, green } from '@material-ui/core/colors'
 
-import { Group, Student, Subject } from '../../interfaces'
 import { Header } from '../../layout'
+import { useLesson } from '../../hooks/use-lesson'
 
-interface AttendanceProps {
-
-}
+interface AttendanceProps { }
 
 interface StudentsMap {
   [studentId: string]: boolean
-}
-
-interface StudentsQueryData {
-  studentsInGroup: Student[]
-}
-
-interface InitialQueryData {
-  subjects: Subject[]
-  groupsThisYear: Group[]
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -79,114 +69,27 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-const INITIAL_DATA = gql`
-  {
-    subjects {
-      id
-      name
-    }
-
-    groupsThisYear {
-      id
-      name
-      year
-    }
-  }
-`
-
-const STUDENTS_IN_GROUP = gql`
-  query studentsInGroup($groupId: ID!) {
-    studentsInGroup(groupId: $groupId) {
-      person {
-        firstName
-        lastName
-        phone
-      }
-      id
-    }
-  }
-`
-
 const CREATE_ATTENDANCE = gql`
-  mutation createGroupAttendanceReport(
-    $groupId: ID!
-    $subjectId: ID!
-    $lessonNo: Int!
-    $date: Date!
-    $absentStudentIds: [StudentAbsenceReasonMap]!
-  ) {
-      createGroupAttendanceReport(
-        attendanceReport: {
-          groupId: $groupId,
-          subjectId: $subjectId,
-          lessonNo: $lessonNo,
-          date: $date,
-          absentStudentIds: $absentStudentIds
-        }) {
-        id
-      }
+  mutation createBatchAttendances($attendances: [CreateAttendancePayload]!) {
+    createBatchAttendances(attendances: $attendances) {
+      id
     }
+  }
 `
 
-const lessonsNo = [1, 2, 3, 4, 5, 6, 7]
-
-type DrawerContentView = 'date' | 'lessons' | 'subjects' | 'groups'
+interface AttendanceParams {
+  lessonId: string
+}
 
 export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) => {
   const classes = useStyles()
   const history = useHistory()
   const location = useLocation()
+  const params = useParams<AttendanceParams>()
 
-  const {
-    error,
-    loading,
-    data,
-  } = useQuery<InitialQueryData>(INITIAL_DATA)
+  const [lesson] = useLesson(params.lessonId)
 
-  const { subjects = [], groupsThisYear: groups = [] } = (data || {})
-
-  const [
-    queryStudents,
-    {
-      loading: studentsIsLoading,
-      error: studentsError,
-      data: {
-        studentsInGroup: students = [],
-      } = {},
-    },
-  ] = useLazyQuery<StudentsQueryData>(STUDENTS_IN_GROUP)
-
-  const [selectedDate, setDate] = React.useState<Date | null>(
-    new Date()
-  )
-  const [selectedSubject, setSelectedSubject] = React.useState<Subject>()
-  const [selectedGroup, setSelectedGroup] = React.useState<Group>()
-  const [selectedLessonNo, setSelectedLessonNo] = React.useState(1)
   const [selectedStudents, setSelectedStudents] = React.useState<StudentsMap>({})
-
-  useEffect(() => {
-    if (!selectedGroup) return
-    setSelectedStudents({})
-    queryStudents({
-      variables: { groupId: selectedGroup.id },
-    })
-  }, [selectedGroup])
-
-  useEffect(() => {
-    const isCompletedForm = Boolean(selectedDate)
-      && Boolean(selectedSubject)
-      && Boolean(selectedLessonNo)
-      && Boolean(selectedStudents)
-      && Boolean(selectedGroup)
-
-    setCanSubmit(isCompletedForm)
-  }, [
-    selectedDate,
-    selectedSubject,
-    selectedLessonNo,
-    selectedStudents,
-    selectedGroup
-  ])
 
   const toggleStudentSelection = (studentId: string) =>
     (_event: React.MouseEvent<HTMLElement>) => {
@@ -196,133 +99,31 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
       }))
     }
 
-  const [saveAttendance] = useMutation(CREATE_ATTENDANCE, {
+  const [createAttendances] = useMutation(CREATE_ATTENDANCE, {
     variables: {
-      groupId: selectedGroup ? selectedGroup.id : undefined,
-      subjectId: selectedSubject ? selectedSubject.id : undefined,
-      lessonNo: selectedLessonNo,
-      date: selectedDate,
-      absentStudentIds: Object.entries(selectedStudents)
-        .filter(([_, reason]) => reason !== undefined)
-        .map(([studentId, absenceReason]) => ({ studentId, absenceReason })),
-    },
+      attendances: chain(selectedStudents)
+        .entries()
+        .filter(([_, isSelected]) => isSelected)
+        .map(([studentId]) => ({
+          studentId,
+          lessonId: lesson?.id
+        }))
+        .value()
+    }
   })
 
-  const [canSubmit, setCanSubmit] = useState<boolean>(false)
+  const [canSubmit] = useState<boolean>(true)
 
   const onSubmit = React.useCallback(async () => {
-    await saveAttendance()
-    const date = (selectedDate || new Date()).toISOString()
-    const groupId = selectedGroup ? selectedGroup.id : ''
-    const searchParams = new URLSearchParams([
-      ['groupId', groupId],
-      ['date', date]
-    ])
-    location.pathname = '/attendance/report'
-    location.search = searchParams.toString()
-    history.push(location)
+    await createAttendances()
+    history.goBack()
   }, [
-    selectedDate,
-    selectedSubject,
-    selectedLessonNo,
     selectedStudents,
-    selectedGroup
   ])
 
-  const handleDateChange = (date: Date | null) => {
-    setDate(date)
-    toggleDrawer(false)()
-  }
+  if (lesson === undefined) return <CircularProgress/>
 
-  const [isOpenDrawer, setDrawerState] = useState(false)
-
-  const toggleDrawer = (open: boolean, drawerContentView?: DrawerContentView) => () => {
-    drawerContentView && setDrawerContentView(drawerContentView)
-    setDrawerState(open)
-  }
-
-  const [drawerContentView, setDrawerContentView] = useState<DrawerContentView>()
-
-  const drawerContent = () => {
-    switch (drawerContentView) {
-      case 'date': {
-        return (
-          <>
-            <MuiPickersUtilsProvider utils={DateFnsUtils} locale={ukLocale}>
-              <DatePicker
-                format="dd.MM.yyyy"
-                variant="static"
-                disableFuture
-                value={selectedDate}
-                disableToolbar
-                onChange={handleDateChange}/>
-            </MuiPickersUtilsProvider>
-          </>
-        )
-      }
-      case 'groups': {
-        return (
-          <List component="nav" aria-label="groups list">
-            {
-              groups.map(group => {
-                return (
-                  <ListItem button onClick={() => {
-                    setSelectedGroup(group)
-                    toggleDrawer(false)()
-                  }}>
-                    <ListItemText primary={group.name} />
-                  </ListItem>
-                )
-              })
-            }
-          </List>
-        )
-      }
-      case 'lessons':
-        return (
-          <ButtonGroup variant="contained">
-            {
-              lessonsNo.map((lessonNo, idx) =>
-                (
-                  <Button
-                    key={idx}
-                    color={lessonNo === selectedLessonNo ? 'primary' : 'default'}
-                    onClick={() => {
-                      setSelectedLessonNo(lessonNo)
-                      toggleDrawer(false)()
-                    }}>
-                    {lessonNo}
-                  </Button>
-                ),
-              )
-            }
-          </ButtonGroup>
-        )
-      case 'subjects':
-        return (
-          <List component="nav" aria-label="lessons no list">
-            {
-              subjects.map(subject => (
-                <ListItem
-                  button
-                  key={subject.id}
-                  onClick={() => {
-                    setSelectedSubject(subject)
-                    toggleDrawer(false)()
-                  }}
-                >
-                  <ListItemText primary={subject.name} />
-                </ListItem>
-              ))
-            }
-          </List>
-        )
-      default:
-        return null
-    }
-  }
-
-  if (loading) return <CircularProgress/>
+  const students = lesson.group.students || []
 
   return (
     <>
@@ -339,43 +140,6 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
         }
       />
 
-      <List component="nav">
-        <ListItem button onClick={toggleDrawer(true, 'date')}>
-          <ListItemText primary="Дата уроку" />
-          <ListItemText
-            primary={selectedDate ? selectedDate.toLocaleDateString() : ''}
-            className={classes.listItemValue}
-          />
-        </ListItem>
-        <Divider />
-        <ListItem button onClick={toggleDrawer(true, 'lessons')}>
-          <ListItemText primary="№ уроку" />
-          <ListItemText
-            primary={selectedLessonNo}
-            className={classes.listItemValue}
-          />
-        </ListItem>
-        <Divider />
-        <ListItem button onClick={toggleDrawer(true, 'subjects')}>
-          <ListItemText primary="Предмет" />
-          <ListItemText
-            primaryTypographyProps={{
-              align:"right"
-            }}
-            primary={selectedSubject ? selectedSubject.name : ''}
-            className={classes.listItemValue}
-          />
-        </ListItem>
-        <Divider />
-        <ListItem button onClick={toggleDrawer(true, 'groups')}>
-          <ListItemText primary="Група" />
-          <ListItemText
-            primary={selectedGroup ? selectedGroup.name : undefined}
-            primaryTypographyProps={{ align: 'right'}}
-            className={classes.listItemValue}
-          />
-        </ListItem>
-      </List>
       <List
         hidden={students.length === 0}
         component="nav"
@@ -392,8 +156,13 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
           students.map((student, idx) => {
             return (
               <>
-                <ListItem button onClick={toggleStudentSelection(student.id)} key={idx}>
-                  <ListItemText primary={`${student.person.lastName} ${student.person.firstName[0]}`} />
+                <ListItem
+                  button
+                  onClick={toggleStudentSelection(student.id)}
+                  key={idx}>
+                  <ListItemText
+                    primary={`${student.person.lastName} ${student.person.firstName[0]}`}
+                  />
                   <ListItemSecondaryAction hidden={!selectedStudents[student.id]}>
                     <Avatar>H</Avatar>
                   </ListItemSecondaryAction>
@@ -404,13 +173,6 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
           })
         }
       </List>
-      <Drawer
-        className={classes.drawer}
-        anchor="bottom"
-        open={isOpenDrawer}
-        onClose={toggleDrawer(false)}>
-        { drawerContent() }
-      </Drawer>
     </>
   )
 }

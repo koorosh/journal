@@ -2,15 +2,20 @@ import { ApolloServer } from 'apollo-server'
 
 import typeDefs from './schema'
 import {
-  AbsenceDatasource, ClientDatasource,
-  GroupDatasource,
-  ParentDatasource,
-  PersonDatasource,
+  AttendanceDataSource,
+  LessonDataSource,
+  GroupDataSource,
+  ParentDataSource,
+  PersonDataSource,
   Publisher,
-  StudentDatasource,
-  SubjectDatasource
+  StudentDataSource,
+  SubjectDataSource,
+  TeacherDataSource
 } from './datasources'
 import resolvers from './resolvers'
+import { connectToDb } from './db'
+
+connectToDb().catch(console.error)
 
 const port = process.env.PORT
 
@@ -18,14 +23,15 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   dataSources: () => ({
-    students: new StudentDatasource(),
-    groups: new GroupDatasource(),
-    subjects: new SubjectDatasource(),
-    absence: new AbsenceDatasource(),
-    parents: new ParentDatasource(),
-    persons: new PersonDatasource(),
+    students: new StudentDataSource(),
+    groups: new GroupDataSource(),
+    subjects: new SubjectDataSource(),
+    attendance: new AttendanceDataSource(),
+    parents: new ParentDataSource(),
+    persons: new PersonDataSource(),
     publisher: new Publisher(),
-    client: new ClientDatasource(),
+    lessons: new LessonDataSource(),
+    teachers: new TeacherDataSource(),
   }),
 })
 

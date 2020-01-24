@@ -9,6 +9,7 @@
     "@material-ui/icons": "^4.5.1",
     "@material-ui/pickers": "^3.2.8",
     "apollo-boost": "^0.4.7",
+    "apollo-cache-inmemory": "^1.6.5",
     "date-fns": "^2.9.0",
     "graphql": "^14.5.8",
     "idx": "^2.5.6",

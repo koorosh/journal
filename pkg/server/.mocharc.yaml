@@ -1,0 +1,15 @@
+diff: true
+color: true
+extension:
+  - ts
+reporter: spec
+ui: bdd
+recursive: true
+require: 'ts-node/register'
+spec: ./src/**/*.spec.ts
+slow: 75
+timeout: 2000
+watch: true
+watch-files:
+  - 'src/**/*.ts'
+  - 'src/**/*.tsx'

@@ -20,8 +20,8 @@ mongoose.connection.on('error', (error) => {
   console.log('ERROR: ' + error)
 })
 
-export const connectToDb = async () => {
-  await mongoose.connect(process.env.MONGODB_URI, {
+export const connectToDb = async (url: string) => {
+  return await mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,

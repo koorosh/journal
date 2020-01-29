@@ -11,10 +11,7 @@
     "start": "node -r ts-node/register -r dotenv/config ./src/index.ts",
     "build": "tsc && knex migrate:latest",
     "serve": "node ./src/index.js",
-    "db:migrate": "knex migrate:latest",
-    "db:seed": "knex seed:run",
-    "db:rollback": "knex migrate:rollback",
-    "db:make": "knex migrate:make"
+    "db:seed": "node -r ts-node/register -r dotenv/config ./test/seed-db.ts"
   },
   "dependencies": {
     "apollo-datasource": "^0.6.3",
@@ -25,14 +22,18 @@
     "uuid": "^3.3.3"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.7",
     "@types/faker": "^4.1.8",
     "@types/lodash": "^4.14.149",
+    "@types/mocha": "^5.2.7",
     "@types/mongoose": "^5.5.43",
     "@types/uuid": "^3.4.6",
+    "chai": "^4.2.0",
     "dataloader": "^2.0.0",
     "dotenv": "^8.2.0",
     "faker": "^4.1.0",
-    "ts-node": "^8.5.2",
+    "mocha": "^7.0.1",
+    "ts-node": "^8.6.2",
     "typescript": "^3.7.2"
   }
 }

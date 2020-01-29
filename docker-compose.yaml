@@ -42,5 +42,3 @@ volumes:
   journal_pg_data:
   sender_pg_data:
   journal_mongo_data:
-
-

@@ -1,6 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose'
 import { Person } from './person'
-import uuid from 'uuid'
 
 const ParentsSchema = new Schema({
   person: {type: Schema.Types.ObjectId, ref: 'Persons'}

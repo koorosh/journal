@@ -15,9 +15,10 @@ import {
 import resolvers from './resolvers'
 import { connectToDb } from './db'
 
-connectToDb().catch(console.error)
-
+const dbUrl = process.env.MONGODB_URI
 const port = process.env.PORT
+
+connectToDb(dbUrl).catch(console.error)
 
 const server = new ApolloServer({
   typeDefs,

@@ -31,10 +31,6 @@ GroupsSchema.virtual('id')
     this._id = Types.ObjectId(id)
   })
 
-GroupsSchema.statics.findById = function (id: string) {
-  return this.findOne({ _id: Types.ObjectId(id) })
-}
-
 export interface Group extends Document {
   id: string
   name: string

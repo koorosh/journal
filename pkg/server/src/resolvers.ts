@@ -27,6 +27,7 @@ const resolverMap = {
 const resolvers: GraphQLResolverMap<Context> = {
   ...resolverMap,
   Query: {
+    attendance: (_, { id }, { dataSources }) => dataSources.attendance.findById(id),
     students: (_, __, { dataSources }) => dataSources.students.selectAll(),
     student: (_, { id }, { dataSources }) => dataSources.students.findById(id),
     groups: (_, __, { dataSources }) => dataSources.groups.selectAll(),
@@ -60,7 +61,7 @@ const resolvers: GraphQLResolverMap<Context> = {
     createLesson: (_, { order, date, subjectId, groupId, teacherId }, { dataSources }) =>
       dataSources.lessons.create(date, order, subjectId, groupId, teacherId),
     createAttendance: (_, { attendance }, { dataSources }) =>
-      dataSources.attendance.create(attendance.lessonId, attendance.studentId, attendance.reason),
+      dataSources.attendance.create(attendance.studentId, attendance.lessonId, attendance.reason),
     createBatchAttendances: (_, { attendances }, { dataSources }) =>
       dataSources.attendance.batchCreate(attendances),
     // initUserAccessCode: (_, { personId }, { dataSources }) =>

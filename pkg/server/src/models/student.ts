@@ -26,10 +26,6 @@ function preHook() {
   this.populate('person')
 }
 
-function postHook(doc) {
-
-}
-
 StudentsSchema.pre('find', preHook)
 StudentsSchema.pre('findOne', preHook)
 StudentsSchema.pre('findOneAndUpdate', preHook)

@@ -2,6 +2,7 @@ import { gql } from 'apollo-server'
 
 const typeDefs = gql`
   type Query {
+    attendance(id: ID!): Attendance
     students: [Student]
     persons: [Person]
     student(id: ID!): Student

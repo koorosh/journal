@@ -33,7 +33,14 @@ LessonsSchema.pre('findOne', preHook)
 LessonsSchema.pre('findOneAndUpdate', preHook)
 LessonsSchema.post('save', postHook)
 
-export interface Lesson {
+LessonsSchema.virtual('id')
+  .get(function() { return this._id.toString() })
+  .set(function (id: string) {
+    this._id = Types.ObjectId(id)
+  })
+
+export interface Lesson extends Document {
+  id: string
   order: number
   date: Date
   group: Group
@@ -41,4 +48,4 @@ export interface Lesson {
   subject: Subject
 }
 
-export const LessonsModel = model<Lesson & Document>('Lessons', LessonsSchema)
+export const LessonsModel = model<Lesson>('Lessons', LessonsSchema)

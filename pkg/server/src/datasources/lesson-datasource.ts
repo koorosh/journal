@@ -1,4 +1,5 @@
 import { DataSource } from 'apollo-datasource'
+
 import { Lesson, LessonsModel } from '../models'
 
 export class LessonDataSource extends DataSource {
@@ -32,7 +33,7 @@ export class LessonDataSource extends DataSource {
       teacher: teacherId,
       date,
     },
-      (err, records) => records.map(record => record.toObject())).exec()
+      (err, records) => records.map(record => record.toObject()))
     return lessons
   }
 }

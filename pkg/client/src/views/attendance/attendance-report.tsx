@@ -1,154 +1,55 @@
-import React, { useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
-import { gql } from 'apollo-boost'
-import { useQuery } from '@apollo/react-hooks'
-import { groupBy, map, last, chain, isEmpty } from 'lodash'
+import React from 'react'
+import { useHistory } from 'react-router-dom'
+import { parseISO } from 'date-fns'
 import {
   Button,
-  Checkbox,
-   Divider, List, ListItem, ListItemSecondaryAction, ListItemText,
-  Typography
+  Paper,
+  Table, TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@material-ui/core'
 
-import { getReasonName, Student } from '../../interfaces'
 import { Header } from '../../layout'
+import { useAttendanceBy } from '../../hooks/use-attendance-by'
+import { Attendance, AttendanceReason, Student } from '../../interfaces'
 
-
-// TODO: has to be queried from local state (saved right after the report created)
-const ATTENDANCE_REPORT_BY_ID_QUERY = gql`
-  query getReportsByDateAndGroup($groupId: ID!, $date: Date!) {
-    getReportsByDateAndGroup(groupId: $groupId, date: $date) {
-      id
-      studentId
-      lessonNo
-      date
-      absenceReason
-      groupId
-      groupName
-      studentFirstName
-      studentLastName
-      subjectId
-      subjectName
-    }
+interface AttendanceItem {
+  [key: string]: {
+    items: Attendance[]
+    student: Student
+    reason: AttendanceReason | null
   }
-`
-
-interface AttendanceRecord {
-  id: string
-  date: Date
-  studentId: string
-  studentFirstName: string
-  studentLastName: string
-  lessonNo: number
-  absenceReason: number
-  groupId: string
-  groupName: string
-  subjectId?: string
-  subjectName?: string
-}
-
-interface AttendanceReportResponse {
-  getReportsByDateAndGroup: AttendanceRecord[]
-}
-
-interface SelectedStudentsMap {
-  [id: string]: boolean
 }
 
 export const AttendanceReport: React.FC = () => {
-  const location = useLocation()
   const history = useHistory()
-  const params = new URLSearchParams(location.search)
-  const groupId = params.get('groupId')
-  const date = params.get('date')
 
-  const { loading, error, data = { getReportsByDateAndGroup: []}, } = useQuery<AttendanceReportResponse>(
-    ATTENDANCE_REPORT_BY_ID_QUERY,
-    {
-      variables: { groupId, date },
-    })
+  const searchParams = new URLSearchParams(history.location.search)
 
-  const reports: AttendanceRecord[] = data.getReportsByDateAndGroup
+  const dateStr = searchParams.get('date')
+  const groupId = searchParams.get('groupId') || undefined
+  let date: Date | undefined = undefined
 
-  const [selectedStudents, selectStudent] = useState<SelectedStudentsMap>({})
+  if (dateStr) {
+    date = parseISO(dateStr)
+  }
 
-  const reportsByStudent = groupBy(reports, report => report.studentId)
+  const [attendances] = useAttendanceBy({ groupId, date })
 
-  const listItems = map(reportsByStudent, (studentReports, studentId) => {
-    const {
-      studentFirstName,
-      studentLastName,
-    } = studentReports[0]
-
-    const lessonRanges = chain(studentReports)
-      .sortBy('lessonNo')
-      .reduce((acc: Array<[number, number]>, item) => {
-        const currentLessonNo = item.lessonNo
-        const lastRange = last(acc)
-
-        if (isEmpty(acc) || lastRange === undefined) {
-          acc.push([currentLessonNo, currentLessonNo])
-          return acc
-        }
-
-        if ((lastRange[1] + 1) === currentLessonNo) {
-          lastRange[1] = currentLessonNo
-        } else {
-          acc.push([currentLessonNo, currentLessonNo])
-        }
-        return acc
-      }, [])
-      .map(lessonRange => {
-        if (lessonRange[0] === lessonRange[1]) return lessonRange[0]
-        return lessonRange.join(' - ')
-      })
-      .value()
-    const lessonRangesStr = lessonRanges.join(', ')
-
-    return (
-      <>
-        <ListItem
-          button
-          onClick={() => {
-            selectStudent({
-              ...selectedStudents,
-              [studentId]: !selectedStudents[studentId],
-            })
-          }}
-          key={studentId}
-        >
-          <ListItemText
-            primary={`${studentLastName} ${studentFirstName}`}
-            secondary={
-              <>
-                <Typography
-                  variant="body2"
-                >
-                  Пропущені уроки: {lessonRangesStr}
-                </Typography>
-                <Typography
-                  variant="body2"
-                >
-                  Дата: {new Date(Date.parse(date || '')).toLocaleDateString()}
-                </Typography>
-              </>
-            }
-          />
-          <ListItemSecondaryAction>
-            <Checkbox
-              checked={Boolean(selectedStudents[studentId])}
-              onChange={(e, checked) =>
-                selectStudent({
-                  ...selectedStudents,
-                  [studentId]: checked,
-                })}
-            />
-          </ListItemSecondaryAction>
-        </ListItem>
-        <Divider />
-      </>
-    )
-  })
+  const rows = attendances.reduce((acc: AttendanceItem, item) => {
+    if (acc[item.student.id]) {
+      acc[item.student.id] = {
+        items: [item],
+        student: item.student,
+        reason: null
+      }
+    } else {
+      acc[item.student.id].items.push(item)
+    }
+    return acc
+  }, {})
 
   return (
     <>
@@ -157,15 +58,34 @@ export const AttendanceReport: React.FC = () => {
         actionControl={
           <Button
             color="inherit"
-            onClick={() => history.push('/')}
+            onClick={() => {}}
           >
-            Відправити
+            Облік відвідуваності
           </Button>
         }
       />
-      <List component="nav">
-        {listItems}
-      </List>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ПІБ</TableCell>
+              <TableCell align="right">Причина</TableCell>
+              <TableCell align="right"/>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Object.values(rows).map((row, idx) => (
+              <TableRow key={idx}>
+                <TableCell component="th" scope="row">
+                  {`${row.student.person.lastName} ${row.student.person.firstName}`}
+                </TableCell>
+                <TableCell align="right">{row.items.length}</TableCell>
+                <TableCell align="right">{row.reason}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </>
   )
 }

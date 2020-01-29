@@ -1,13 +1,10 @@
-import React, { MouseEventHandler, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { chain } from 'lodash'
 import {
   Avatar,
   Button,
-  ButtonGroup,
-  Checkbox, Chip,
   CircularProgress,
   createStyles, Divider,
-  Drawer,
   List,
   ListItem,
   ListItemSecondaryAction,
@@ -16,12 +13,6 @@ import {
   Paper,
   Theme
 } from '@material-ui/core'
-import {
-  DatePicker,
-  MuiPickersUtilsProvider,
-} from '@material-ui/pickers'
-import DateFnsUtils from '@date-io/date-fns'
-import ukLocale from 'date-fns/locale/uk'
 import { gql } from 'apollo-boost'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/react-hooks'

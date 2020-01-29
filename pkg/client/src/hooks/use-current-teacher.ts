@@ -28,6 +28,7 @@ export function useCurrentTeacher(): [Teacher | undefined] {
   useEffect(() => {
     if (error) {
       setTeacher(undefined)
+      return
     }
     if (loading) return
     if (!data) return

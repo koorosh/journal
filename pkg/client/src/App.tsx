@@ -7,6 +7,7 @@ import client from './graphql-client'
 
 import { Attendance, AttendanceReport, Home, Lesson, NewLesson } from './views'
 import { Layout } from './layout'
+import { Reports } from './views/reports'
 
 const App: React.FC = () => {
   return (
@@ -14,11 +15,15 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Layout>
           <Switch>
-            <Route path="/attendance/report">
+            <Redirect exact from="/" to="/today" />
+            <Route exact path="/reports/attendance">
               <AttendanceReport />
             </Route>
             <Route exact path="/lesson/:lessonId/attendance">
               <Attendance />
+            </Route>
+            <Route exact path="/lesson/:lessonId/attendance/report">
+              <AttendanceReport />
             </Route>
             <Route exact path="/lesson/new">
               <NewLesson />
@@ -26,9 +31,11 @@ const App: React.FC = () => {
             <Route exact path="/lesson/:id">
               <Lesson />
             </Route>
-            <Redirect from="/today" to="/" />
-            <Route exact path="/">
+            <Route exact path="/today">
               <Home />
+            </Route>
+            <Route exact path="/reports">
+              <Reports />
             </Route>
           </Switch>
         </Layout>

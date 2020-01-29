@@ -44,6 +44,7 @@ export function useLesson(id: string): [Lesson | undefined] {
   useEffect(() => {
     if (error) {
       setLesson(undefined)
+      return
     }
     if (loading) return
     if (!data) return

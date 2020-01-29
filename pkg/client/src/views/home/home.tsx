@@ -1,5 +1,5 @@
 import React, { MouseEvent, useEffect, useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Button, List, ListItem, ListItemText } from '@material-ui/core'
 import { useLazyQuery, useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'

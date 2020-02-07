@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node -r ts-node/register -r dotenv/config ./src/index.ts",
-    "build": "tsc && knex migrate:latest",
+    "build": "tsc",
     "serve": "node ./src/index.js",
     "db:seed": "node -r ts-node/register -r dotenv/config ./test/seed-db.ts"
   },

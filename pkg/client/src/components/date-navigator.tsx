@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react'
-import { Button } from '@material-ui/core'
-import { add, sub, format } from 'date-fns'
+import React from 'react'
+import { Button, ButtonGroup, createStyles, makeStyles, Theme, Typography } from '@material-ui/core'
+import { format, startOfWeek, addDays, isSameDay, isWeekend } from 'date-fns'
 import { uk } from 'date-fns/locale'
 
 export interface DateNavigatorProps {
@@ -8,15 +8,66 @@ export interface DateNavigatorProps {
   onChange: (date: Date) => void
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100vw',
+      justifyContent: 'center'
+    },
+    dateButton: {
+      borderRadius: `${theme.spacing(2)}px!important`,
+      paddingRight: theme.spacing(),
+      paddingLeft: theme.spacing(),
+    },
+    buttonLabel: {
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    groupedTextHorizontal: {
+      borderRight: 'none!important'
+    }
+  }),
+)
+
+
 export const DateNavigator: React.FC<DateNavigatorProps> = (props: DateNavigatorProps) => {
+  const classes = useStyles()
   const { date, onChange } = props
-  const handleBack = useCallback(() => onChange(sub(date, { days: 1 })), [date])
-  const handleForward = useCallback(() => onChange(add(date, { days: 1 })), [date])
+  const firstDayOfWeek = startOfWeek(date, { weekStartsOn: 1 })
+  const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд']
+
+  const weekDays = daysOfWeek.map((weekDayName, idx) => {
+    const currDate = addDays(firstDayOfWeek, idx)
+    const isSelectedDate = isSameDay(date, currDate)
+    const todayIsWeekend = isWeekend(currDate)
+    return (
+      <Button
+        variant={isSelectedDate ? 'contained' : 'text'}
+        color={todayIsWeekend ? 'default' : 'primary'}
+        className={classes.dateButton}
+        classes={{ label: classes.buttonLabel }}
+        onClick={() => onChange(currDate)}
+      >
+        {
+          <>
+            <Typography variant="subtitle2">{weekDayName}</Typography>
+            <Typography variant="subtitle2">{format(currDate, 'dd', { locale: uk })}</Typography>
+          </>
+        }
+      </Button>
+    )
+  })
+
+
   return (
-    <div>
-      <Button onClick={handleBack}>Назад</Button>
-      <span>{format(date, 'dd MMMM yy', { locale: uk })}</span>
-      <Button onClick={handleForward}>Далі</Button>
-    </div>
+    <ButtonGroup
+      className={classes.root}
+      classes={{
+        groupedTextHorizontal: classes.groupedTextHorizontal,
+      }}
+      variant="text"
+      color="primary">
+      {weekDays}
+    </ButtonGroup>
   )
 }

@@ -40,6 +40,8 @@ const resolvers: GraphQLResolverMap<Context> = {
     currentTeacher: (_, __, { dataSources }) => dataSources.teachers.currentTeacher(),
     attendancesByGroupIdAndDate: (_, { groupId, date }, { dataSources }) =>
       dataSources.attendance.findByGroupAndDate(groupId, date),
+    attendancesByLessonId: (_, { lessonId }, { dataSources }) =>
+      dataSources.attendance.findByLessonId(lessonId),
     person: (_, { id }, { dataSources }) => dataSources.persons.findById(id),
     lessonsByTeacher: (_, { teacherId, date }, { dataSources }) =>
       dataSources.lessons.findLessonsByTeacherAndDate(teacherId, date),

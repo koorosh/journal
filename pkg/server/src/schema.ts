@@ -17,6 +17,7 @@ const typeDefs = gql`
     currentTeacher: Teacher
     parentsByStudentId(studentId: ID!): [Person]
     attendancesByGroupIdAndDate(groupId: ID!, date: Date!): [Attendance]
+    attendancesByLessonId(lessonId: ID!): [Attendance]
     lessonsByTeacher(teacherId: ID!, date: Date!): [Lesson]
     lesson(id: ID!): Lesson
   }

@@ -2,10 +2,18 @@ import React, { PropsWithChildren } from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
+import { Footer } from './footer'
 
 const useStyles = makeStyles(theme => ({
+  '@global': {
+    'div#root': {
+      height: '100vh',
+    },
+  },
   root: {
     display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
   },
   content: {
     flexGrow: 1,
@@ -33,6 +41,7 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
           { props.children }
         </Container>
       </main>
+      <Footer />
     </div>
   );
 }

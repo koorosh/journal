@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppBar, createStyles, makeStyles, Theme, Toolbar, Typography } from '@material-ui/core'
+import { AppBar, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography } from '@material-ui/core'
 
 export interface HeaderProps {
   backButton?: boolean
@@ -21,6 +21,12 @@ export const Header: React.FC<HeaderProps> = (props: HeaderProps) => {
   return (
     <AppBar position="fixed">
       <Toolbar>
+        {/*<IconButton*/}
+        {/*  edge="start"*/}
+        {/*  color="inherit"*/}
+        {/*  aria-label="menu">*/}
+        {/*  <MenuIcon />*/}
+        {/*</IconButton>*/}
         <Typography
           variant="h6"
           className={classes.title}

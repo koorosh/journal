@@ -25,7 +25,7 @@ export class AttendanceDataSource extends DataSource {
 
   async batchCreate(attendances: any[]) {
     return Promise.all(attendances.map(attendance =>
-      this.create(attendance.lessonId, attendance.studentId, attendance.reason))
+      this.create(attendance.studentId, attendance.lessonId, attendance.reason))
     )
   }
 
@@ -39,6 +39,15 @@ export class AttendanceDataSource extends DataSource {
         lesson: {
           $in: lessons.map(lesson => lesson._id)
         }
+      }, (err, records) => (records || []).map(record => record.toObject()))
+
+    return attendances
+  }
+
+  async findByLessonId(lessonId: string): Promise<Attendance[]> {
+    const attendances = await AttendancesModel
+      .find({
+        lesson: lessonId
       }, (err, records) => (records || []).map(record => record.toObject()))
 
     return attendances

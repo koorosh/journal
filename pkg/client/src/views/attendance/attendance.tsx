@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { chain } from 'lodash'
 import {
   Avatar,
@@ -20,6 +20,7 @@ import { deepOrange, green } from '@material-ui/core/colors'
 
 import { Header } from '../../layout'
 import { useLesson } from '../../hooks/use-lesson'
+import { useAttendancesByLessonId } from '../../hooks/use-attendance'
 
 interface AttendanceProps { }
 
@@ -80,7 +81,18 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
 
   const [lesson] = useLesson(params.lessonId)
 
+  const [attendances] = useAttendancesByLessonId(params.lessonId)
+
   const [selectedStudents, setSelectedStudents] = React.useState<StudentsMap>({})
+
+  useEffect(() => {
+    attendances?.forEach(item => {
+      setSelectedStudents(prevState => ({
+        ...prevState,
+        [item.student.id]: true,
+      }))
+    })
+  }, [attendances])
 
   const toggleStudentSelection = (studentId: string) =>
     (_event: React.MouseEvent<HTMLElement>) => {

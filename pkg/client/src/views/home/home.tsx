@@ -1,8 +1,6 @@
 import React, { MouseEvent, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import {
-  Avatar,
-  Button,
   createStyles,
   Divider, Drawer, IconButton,
   List,
@@ -12,7 +10,7 @@ import {
   makeStyles, Theme, Toolbar, Typography
 } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today';
-import { useLazyQuery, useQuery } from '@apollo/react-hooks'
+import { useLazyQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { groupBy } from 'lodash'
 
@@ -48,6 +46,11 @@ const useStyles = makeStyles((theme: Theme) =>
     drawer: {
       padding: theme.spacing(1)
     },
+    secondaryToolbar: {
+      background: theme.palette.background.default,
+      paddingTop: theme.spacing(),
+      paddingBottom: theme.spacing(),
+    }
   }),
 )
 
@@ -153,12 +156,17 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
             <TodayIcon />
           </IconButton>
         }
-      />
+      >
+        <Toolbar
+          className={classes.secondaryToolbar}
+        >
+          <DateNavigator
+            date={date}
+            onChange={setDate}
+          />
+        </Toolbar>
+      </Header>
       <>
-        <DateNavigator
-          date={date}
-          onChange={setDate}
-        />
         <List>
           {
             lessonsList.map(lesson => {
@@ -177,18 +185,18 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
                         primaryTypographyProps={{variant: 'subtitle2'}} />
                       <ListItemText
                         primary={`${lesson?.subject?.name}`}
-                        primaryTypographyProps={{variant: 'subtitle2'}}
+                        primaryTypographyProps={{variant: 'body1'}}
                         secondary={
                           <>
                             <Typography
                               component="span"
-                              variant="body2"
+                              variant="body1"
                             >Клас: </Typography>
                             {lesson?.group?.name}
                             <span className={classes.verticalDivider}>{'|'}</span>
                             <Typography
                               component="span"
-                              variant="body2"
+                              variant="body1"
                             >Каб: </Typography>
                             {(Math.round(Math.random() * 1000))}
                           </>
@@ -212,10 +220,10 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
                       <ListItemText
                         className={classes.listItemPrefix}
                         primary={lesson?.order}
-                        primaryTypographyProps={{variant: 'subtitle2'}} />
+                        primaryTypographyProps={{variant: 'body1'}} />
                       <ListItemText
                         primary={`Немає уроку ;(`}
-                        primaryTypographyProps={{variant: 'subtitle2'}}
+                        primaryTypographyProps={{variant: 'body1'}}
                         secondary={`Натисніть тут щоб додати урок!`}
                       />
                     </ListItem>

@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -9,7 +9,6 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
-  Paper,
   Theme
 } from '@material-ui/core'
 import {
@@ -19,16 +18,20 @@ import {
 import DateFnsUtils from '@date-io/date-fns'
 import ukLocale from 'date-fns/locale/uk'
 import { gql } from 'apollo-boost'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory, useLocation, useParams } from 'react-router-dom'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/react-hooks'
 import { deepOrange, green } from '@material-ui/core/colors'
 
-import { Group, Student, Subject } from '../../interfaces'
+import { Group, Lesson, Subject } from '../../interfaces'
 import { Header } from '../../layout'
 import { useCurrentTeacher } from '../../hooks/use-current-teacher'
 
 interface NewLessonProps {
 
+}
+
+interface State {
+  initialLesson?: Lesson
 }
 
 interface InitialQueryData {
@@ -62,6 +65,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawer: {
       padding: theme.spacing(1)
+    },
+    drawerPaper: {
+      maxHeight: '90%'
     },
     listItemValue: {
       flexGrow: 0
@@ -106,12 +112,19 @@ const CREATE_LESSON = gql`
 
 const lessonsNo = [1, 2, 3, 4, 5, 6, 7]
 
-type DrawerContentView = 'date' | 'lessons' | 'subjects' | 'groups'
+type DrawerContentView = 'date' | 'lessonNo' | 'subjects' | 'groups'
 
 export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
   const classes = useStyles()
   const history = useHistory()
-  const location = useLocation()
+  const location = useLocation<State>()
+
+  let initDate = new Date()
+  let initLessonNo: number | undefined = undefined
+  if (location.state.initialLesson) {
+    initDate = location.state.initialLesson.date
+    initLessonNo = location.state.initialLesson.order
+  }
 
   const {
     error,
@@ -124,12 +137,10 @@ export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
 
   const { subjects = [], groupsThisYear: groups = [] } = (data || {})
 
-  const [selectedDate, setDate] = React.useState<Date | null>(
-    new Date()
-  )
+  const [selectedDate, setDate] = React.useState<Date | null>(initDate)
   const [selectedSubject, setSelectedSubject] = React.useState<Subject>()
   const [selectedGroup, setSelectedGroup] = React.useState<Group>()
-  const [selectedLessonNo, setSelectedLessonNo] = React.useState(1)
+  const [selectedLessonNo, setSelectedLessonNo] = React.useState<number | undefined>(initLessonNo)
 
   const [createLesson] = useMutation(
     CREATE_LESSON,
@@ -225,25 +236,26 @@ export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
           </List>
         )
       }
-      case 'lessons':
+      case 'lessonNo':
         return (
-          <ButtonGroup variant="contained">
+          <List component="nav" aria-label="lesson No">
             {
-              lessonsNo.map((lessonNo, idx) =>
-                (
-                  <Button
+              lessonsNo.map((lessonNo: number, idx) => {
+                return (
+                  <ListItem
                     key={idx}
-                    color={lessonNo === selectedLessonNo ? 'primary' : 'default'}
+                    button
                     onClick={() => {
                       setSelectedLessonNo(lessonNo)
                       toggleDrawer(false)()
-                    }}>
-                    {lessonNo}
-                  </Button>
-                ),
-              )
+                    }}
+                  >
+                    <ListItemText primary={`${lessonNo}-й урок`} />
+                  </ListItem>
+                )
+              })
             }
-          </ButtonGroup>
+          </List>
         )
       case 'subjects':
         return (
@@ -274,7 +286,7 @@ export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
   return (
     <>
       <Header
-        title="Створити урок"
+        title="Новий урок"
         actionControl={
           <Button
             disabled={!canSubmit}
@@ -295,7 +307,7 @@ export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
           />
         </ListItem>
         <Divider />
-        <ListItem button onClick={toggleDrawer(true, 'lessons')}>
+        <ListItem button onClick={toggleDrawer(true, 'lessonNo')}>
           <ListItemText primary="№ уроку" />
           <ListItemText
             primary={selectedLessonNo}
@@ -325,6 +337,9 @@ export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
       </List>
       <Drawer
         className={classes.drawer}
+        classes={{
+          paper: classes.drawerPaper,
+        }}
         anchor="bottom"
         open={isOpenDrawer}
         onClose={toggleDrawer(false)}>

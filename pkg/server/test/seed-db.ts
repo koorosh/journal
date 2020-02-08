@@ -1,6 +1,6 @@
 import { times, flatMapDeep } from 'lodash'
 import faker from 'faker'
-import { eachDayOfInterval, isWeekend, sub } from 'date-fns'
+import { eachDayOfInterval, isWeekend, sub, add } from 'date-fns'
 
 import { connectToDb } from '../src/db'
 import {
@@ -135,7 +135,8 @@ const seed = async () => {
   // Lessons from 2 last weeks up for today
   const today = new Date()
   const twoMonthsAgo = sub(today, { months: 2 })
-  const workingDays = eachDayOfInterval({ start: twoMonthsAgo, end: today }).filter(day => !isWeekend(day))
+  const twoMonthsNext = add(today, { months: 2 })
+  const workingDays = eachDayOfInterval({ start: twoMonthsAgo, end: twoMonthsNext }).filter(day => !isWeekend(day))
 
   const lessonModels = workingDays.map(day => {
     return groups.map(group => {

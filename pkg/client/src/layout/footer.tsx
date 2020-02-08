@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
     history.push(path)
   }
   return (
-    <BottomNavigation value={location.pathname} onChange={handleNavigationChange}>
+    <BottomNavigation  value={location.pathname} onChange={handleNavigationChange}>
       <BottomNavigationAction label="Головна" value="/today" icon={<HomeIcon />} />
       <BottomNavigationAction label="Звіти" value="/reports" icon={<AssignmentIcon />} />
       <BottomNavigationAction label="Налаштування" value="/settings" icon={<SettingsIcon />} />

@@ -9,6 +9,7 @@ const LessonsSchema = new Schema({
   group: { type: Schema.Types.ObjectId, ref: 'Groups' },
   subject: { type: Schema.Types.ObjectId, ref: 'Subjects' },
   teacher: { type: Schema.Types.ObjectId, ref: 'Teachers' },
+  lastAttendanceCheck: { type: Date },
 }, {
   toObject: {
     virtuals: true,
@@ -46,6 +47,7 @@ export interface Lesson extends Document {
   group: Group
   teacher: Teacher
   subject: Subject
+  lastAttendanceCheck?: Date
 }
 
 export const LessonsModel = model<Lesson>('Lessons', LessonsSchema)

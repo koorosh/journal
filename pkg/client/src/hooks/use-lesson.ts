@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { gql } from 'apollo-boost'
 import { useQuery } from '@apollo/react-hooks'
+import { parseISO } from 'date-fns'
 
 import { Lesson } from '../interfaces'
 
@@ -13,6 +14,7 @@ const LESSON = gql`
     lesson(id: $id) {
       id
       order
+      date
       group {
         id
         name
@@ -28,16 +30,25 @@ const LESSON = gql`
         id
         name
       }
+      lastAttendanceCheck
     }
   }
 `
+
+const parseLesson = (lessonResp: any) => {
+  return {
+    ...lessonResp,
+    date: parseISO(lessonResp.date)
+  }
+}
 
 export function useLesson(id: string): [Lesson | undefined] {
   const [lesson, setLesson] = useState<Lesson>();
   const { loading, error, data } = useQuery<LessonResponse>(
     LESSON,
     {
-      variables: { id }
+      variables: { id },
+      fetchPolicy: 'no-cache'
     }
   )
 
@@ -48,7 +59,7 @@ export function useLesson(id: string): [Lesson | undefined] {
     }
     if (loading) return
     if (!data) return
-    setLesson(data.lesson)
+    setLesson(parseLesson(data.lesson))
   }, [loading, error, data])
 
   return [lesson]

@@ -64,8 +64,9 @@ const resolvers: GraphQLResolverMap<Context> = {
       dataSources.lessons.create(date, order, subjectId, groupId, teacherId),
     createAttendance: (_, { attendance }, { dataSources }) =>
       dataSources.attendance.create(attendance.studentId, attendance.lessonId, attendance.reason),
-    createBatchAttendances: (_, { attendances }, { dataSources }) =>
-      dataSources.attendance.batchCreate(attendances),
+    createBatchAttendancesForLesson: (_, { attendances, lessonId }, { dataSources }) =>
+      dataSources.attendance.removeByLessonId(lessonId)
+        .then(() => dataSources.attendance.batchCreate(attendances)),
     // initUserAccessCode: (_, { personId }, { dataSources }) =>
     //   dataSources.publisher.publish(Queues.USER_ACCESS_CODE, { personId }),
     // sendStudentAttendanceReport: async (_, {date, groupId, attendanceReportIds}, { dataSources }) => {

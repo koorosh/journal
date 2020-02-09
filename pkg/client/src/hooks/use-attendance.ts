@@ -33,22 +33,6 @@ export function useAttendancesByLessonId(lessonId: string): [Attendance[] | unde
     }
   )
 
-  // const [query] = useLazyQuery<AttendanceResponse>(
-  //   ATTENDANCE_BY_LESSON_ID,
-  //   {
-  //     variables: { lessonId },
-  //     fetchPolicy: 'no-cache'
-  //   }
-  // )
-  //
-  // useEffect(() => {
-  //   const { loading, error, data } = query({
-  //     variables: {
-  //       lessonId
-  //     }
-  //   })
-  // }, [lessonId])
-
   useEffect(() => {
     if (error) {
       setAttendances(undefined)

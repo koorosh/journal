@@ -12,9 +12,8 @@ import {
   Typography
 } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { useParams, useHistory } from 'react-router-dom'
-import { isSameDay } from 'date-fns'
+import { isBefore, isToday } from 'date-fns'
 
 import { Header } from '../../layout'
 import { useAttendancesByLessonId } from '../../hooks/use-attendance'
@@ -37,6 +36,10 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     notFilledComment: {
       color: theme.palette.warning.main,
+      fontWeight: theme.typography.fontWeightMedium,
+    },
+    notFilledPastComment: {
+      color: theme.palette.error.main,
       fontWeight: theme.typography.fontWeightMedium,
     },
     verticalDivider: {
@@ -90,7 +93,7 @@ export const Lesson: React.FC = () => {
 
   let commentText
 
-  const hasFilledAttendance = attendances !== null
+  const hasFilledAttendance = !!(lesson?.lastAttendanceCheck)
 
   if (hasFilledAttendance) {
     commentText = (
@@ -100,34 +103,33 @@ export const Lesson: React.FC = () => {
           variant="body1"
           className={classes.filledComment}
         >
-          {`✅ Проведено`}
+          ✅ Проведено
         </Typography>
         <span className={classes.verticalDivider}>{'|'}</span>
         <Typography component="span" variant="body1">{`${attendances?.length} відсутні`}</Typography>
       </>
     )
-  } else if (isSameDay(new Date(), lesson?.date || new Date())) {
+  } else if (isToday(lesson?.date|| new Date()) || !isBefore((lesson?.date || new Date()), new Date)) {
     commentText = (
       <>
         <Typography
           component="span"
           variant="subtitle2"
-          className={classes.filledComment}
+          className={classes.notFilledComment}
         >
-          ❕ Не заповнено
+          🟠 Не заповнено
         </Typography>
       </>
     )
   } else {
     commentText = (
       <>
-        <PriorityHighIcon className={classes.notFilledComment} />
         <Typography
           component="span"
           variant="subtitle2"
-          className={classes.notFilledComment}
+          className={classes.notFilledPastComment}
         >
-          ‼️ Не заповнено
+          🔴 Не заповнено
         </Typography>
       </>
     )
@@ -156,7 +158,7 @@ export const Lesson: React.FC = () => {
         </ExpansionPanelDetails>
         <Divider />
         <ExpansionPanelActions>
-          <Button onClick={handleAttendanceClick} size="small" color="primary">
+          <Button onClick={handleAttendanceClick} color="primary">
             Заповнити
           </Button>
         </ExpansionPanelActions>

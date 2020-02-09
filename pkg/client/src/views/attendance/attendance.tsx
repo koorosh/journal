@@ -62,8 +62,8 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 const CREATE_ATTENDANCE = gql`
-  mutation createBatchAttendances($attendances: [CreateAttendancePayload]!) {
-    createBatchAttendances(attendances: $attendances) {
+  mutation createBatchAttendancesForLesson($attendances: [CreateAttendancePayload]!, $lessonId: ID!) {
+    createBatchAttendancesForLesson(attendances: $attendances, lessonId: $lessonId) {
       id
     }
   }
@@ -104,6 +104,7 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
 
   const [createAttendances] = useMutation(CREATE_ATTENDANCE, {
     variables: {
+      lessonId: lesson?.id,
       attendances: chain(selectedStudents)
         .entries()
         .filter(([_, isSelected]) => isSelected)

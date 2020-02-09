@@ -20,6 +20,11 @@ export class AttendanceDataSource extends DataSource {
     })
 
     const attendance = await model.save()
+    await LessonsModel.updateOne({
+      _id: lessonId
+    }, {
+      lastAttendanceCheck: new Date()
+    })
     return attendance.toObject()
   }
 
@@ -48,8 +53,14 @@ export class AttendanceDataSource extends DataSource {
     const attendances = await AttendancesModel
       .find({
         lesson: lessonId
-      }, (err, records) => (records || []).map(record => record.toObject()))
+      })
 
     return attendances
+  }
+
+  async removeByLessonId(lessonId: string) {
+    return AttendancesModel.remove({
+      lesson: lessonId
+    })
   }
 }

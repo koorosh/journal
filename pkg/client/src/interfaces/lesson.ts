@@ -9,4 +9,5 @@ export interface Lesson {
   subject: Subject
   teacher: Teacher
   date: Date
+  lastAttendanceCheck?: Date
 }

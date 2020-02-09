@@ -57,6 +57,7 @@ const typeDefs = gql`
     group: Group
     date: Date
     order: Int
+    lastAttendanceCheck: Date
   }
   
   type Subject {
@@ -136,8 +137,9 @@ const typeDefs = gql`
     createAttendance(
       attendance: CreateAttendancePayload!
     ): Attendance
-    
-    createBatchAttendances(
+
+    createBatchAttendancesForLesson(
+      lessonId: ID!
       attendances: [CreateAttendancePayload]!
     ): [Attendance]
   }

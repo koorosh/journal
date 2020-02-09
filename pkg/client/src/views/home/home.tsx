@@ -182,7 +182,7 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
                       <ListItemText
                         className={classes.listItemPrefix}
                         primary={lesson?.order}
-                        primaryTypographyProps={{variant: 'subtitle2'}} />
+                        primaryTypographyProps={{variant: 'body1'}} />
                       <ListItemText
                         primary={`${lesson?.subject?.name}`}
                         primaryTypographyProps={{variant: 'body1'}}

@@ -1,3 +1,5 @@
+import { Context as KoaContext } from 'koa'
+
 import {
   AttendanceDataSource,
   GroupDataSource,
@@ -7,8 +9,9 @@ import {
   PersonDataSource,
   Publisher,
   LessonDataSource,
-  TeacherDataSource
+  TeacherDataSource, UserDataSource
 } from './datasources'
+import { User } from './models'
 
 export interface DataSourceMap {
   students: StudentDataSource,
@@ -20,8 +23,15 @@ export interface DataSourceMap {
   publisher: Publisher,
   lessons: LessonDataSource,
   teachers: TeacherDataSource,
+  users: UserDataSource,
+}
+
+export type ExtContext = {
+  user: User
 }
 
 export interface Context {
-  dataSources: DataSourceMap
+  dataSources: DataSourceMap,
+  user?: User,
+  ctx: KoaContext & ExtContext
 }

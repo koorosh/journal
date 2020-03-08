@@ -35,7 +35,7 @@ app
   .use(bodyParser())
   .use(responseTime)
   .use(logger())
-  .use(jwt.unless({ path: [/^\/auth/, /^\/graphql/] }))
+  .use(jwt.unless({ path: [/^\/auth/] }))
   .use(auth.login.routes())
   .use(auth.login.allowedMethods())
   .use(auth.register.routes())
@@ -62,10 +62,12 @@ const server = new ApolloServer({
     users: new UserDataSource(),
     organizations: new OrganizationDataSource(),
   }),
-  context: ({ dataSources, ctx}: Context) => {
-    return {
-      user: ctx.user,
+  context: async ({ dataSources, ctx}: Context) => {
+    const user = ctx.state.user
+    if (!user) {
+      throw new AuthenticationError('you must be logged in')
     }
+    return { user }
   }
 })
 

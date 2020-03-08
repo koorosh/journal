@@ -1,9 +1,9 @@
-import { AuthenticationError } from 'apollo-server'
 import { ApolloServer } from 'apollo-server-koa'
 import Koa from 'koa'
 import cors from '@koa/cors'
 import logger from 'koa-logger'
 import bodyParser from 'koa-bodyparser'
+import jsonwebtoken from 'jsonwebtoken'
 
 import auth from './auth'
 
@@ -22,8 +22,10 @@ import {
 } from './datasources'
 import schema from './schema/index'
 import { connectToDb } from './db'
-import { Context } from './types'
 import { jwt, responseTime } from './middlewares'
+import { GRAPHQL_PATH } from './config'
+import { AuthenticationError } from 'apollo-server'
+import { Context } from './types'
 
 const dbUrl = process.env.MONGODB_URI
 const port = process.env.PORT
@@ -35,7 +37,7 @@ app
   .use(bodyParser())
   .use(responseTime)
   .use(logger())
-  .use(jwt.unless({ path: [/^\/auth/] }))
+  .use(jwt.unless({ path: [/^\/auth/, /^\/graphql/] }))
   .use(auth.login.routes())
   .use(auth.login.allowedMethods())
   .use(auth.register.routes())
@@ -63,18 +65,32 @@ const server = new ApolloServer({
     organizations: new OrganizationDataSource(),
   }),
   context: async ({ dataSources, ctx}: Context) => {
-    const user = ctx.state.user
-    if (!user) {
+    const { headers, body } = ctx.request
+
+    const publicOperations = [
+      'organizations',
+    ]
+
+    const token = (headers.authorization || '').replace('Bearer ', '')
+    const isPublicOp = publicOperations.includes(body.operationName)
+
+    if (isPublicOp) {
+      return
+    }
+
+    try {
+      const user = jsonwebtoken.verify(token, process.env.JWT_SECRET)
+      return { user }
+    } catch (e) {
       throw new AuthenticationError('you must be logged in')
     }
-    return { user }
   }
 })
 
-server.applyMiddleware({ app });
+server.applyMiddleware({ app, path: GRAPHQL_PATH });
 
 app.listen({ port }, () => {
-  console.log(`🚀 Server ready at: localhost:${port}${server.graphqlPath}`)
+  console.log(`🚀 Server ready at: http://localhost:${port}\nGraphQL URL: http://localhost:${port}${server.graphqlPath}`)
 })
 
 const gracefulShutdown = async () => {

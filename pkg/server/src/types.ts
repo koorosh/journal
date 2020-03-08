@@ -1,4 +1,4 @@
-import { Context as KoaContext } from 'koa'
+import { RouterContext } from 'koa-router'
 
 import {
   AttendanceDataSource,
@@ -13,7 +13,7 @@ import {
   UserDataSource,
   OrganizationDataSource,
 } from './datasources'
-import { User } from './models'
+import { UserRoles } from './models'
 
 export interface DataSourceMap {
   students: StudentDataSource,
@@ -30,11 +30,13 @@ export interface DataSourceMap {
 }
 
 export type ExtContext = {
-  user: User
+  user: {
+    id: string
+    roles: UserRoles
+  }
 }
 
 export interface Context {
   dataSources: DataSourceMap,
-  user?: User,
-  ctx: KoaContext & ExtContext
+  ctx: RouterContext & ExtContext
 }

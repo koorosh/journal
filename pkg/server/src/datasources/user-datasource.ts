@@ -6,13 +6,12 @@ export class UserDataSource extends DataSource {
     return UsersModel.find({})
   }
 
-  async findByPhone(phone: string): Promise<User> {
-    const teacher = await UsersModel.findOne({ phone })
-    return teacher.toObject()
+  async findById(phone: string): Promise<User> {
+    const user = await UsersModel.findOne({ phone })
+    return user.toObject()
   }
 
   async create(phone: string, password: string): Promise<User> {
-    // TODO: validate code, if phone is taken
     const userModel = new UsersModel({
       password,
       phone

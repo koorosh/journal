@@ -1,7 +1,11 @@
+import { AuthenticationError } from 'apollo-server'
 import { ApolloServer } from 'apollo-server-koa'
 import Koa from 'koa'
-import jwt from 'koa-jwt'
 import cors from '@koa/cors'
+import logger from 'koa-logger'
+import bodyParser from 'koa-bodyparser'
+
+import auth from './auth'
 
 import {
   AttendanceDataSource,
@@ -17,6 +21,7 @@ import {
 import schema from './schema/index'
 import { connectToDb } from './db'
 import { Context } from './types'
+import { jwt, responseTime } from './middlewares'
 
 const dbUrl = process.env.MONGODB_URI
 const port = process.env.PORT
@@ -25,12 +30,16 @@ const app = new Koa();
 
 app
   .use(cors())
-  .use(jwt({
-    secret: process.env.JWT_SECRET,
-    passthrough: true
-  }));
-
-// app.use(koaBody())
+  .use(bodyParser())
+  .use(responseTime)
+  .use(logger())
+  .use(jwt.unless({ path: [/^\/auth/, /^\/graphql/] }))
+  .use(auth.login.routes())
+  .use(auth.login.allowedMethods())
+  .use(auth.register.routes())
+  .use(auth.register.allowedMethods())
+  .use(auth.changePassword.routes())
+  .use(auth.changePassword.allowedMethods())
 
 connectToDb(dbUrl).catch(console.error)
 

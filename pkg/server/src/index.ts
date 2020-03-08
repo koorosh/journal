@@ -16,7 +16,9 @@ import {
   Publisher,
   StudentDataSource,
   SubjectDataSource,
-  TeacherDataSource, UserDataSource
+  TeacherDataSource,
+  UserDataSource,
+  OrganizationDataSource,
 } from './datasources'
 import schema from './schema/index'
 import { connectToDb } from './db'
@@ -58,6 +60,7 @@ const server = new ApolloServer({
     lessons: new LessonDataSource(),
     teachers: new TeacherDataSource(),
     users: new UserDataSource(),
+    organizations: new OrganizationDataSource(),
   }),
   context: ({ dataSources, ctx}: Context) => {
     return {

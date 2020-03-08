@@ -9,7 +9,9 @@ import {
   PersonDataSource,
   Publisher,
   LessonDataSource,
-  TeacherDataSource, UserDataSource
+  TeacherDataSource,
+  UserDataSource,
+  OrganizationDataSource,
 } from './datasources'
 import { User } from './models'
 
@@ -24,6 +26,7 @@ export interface DataSourceMap {
   lessons: LessonDataSource,
   teachers: TeacherDataSource,
   users: UserDataSource,
+  organizations: OrganizationDataSource,
 }
 
 export type ExtContext = {

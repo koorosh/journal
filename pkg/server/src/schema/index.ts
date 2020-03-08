@@ -14,6 +14,7 @@ import { typeDef as Student, resolvers as StudentResolvers } from './types/stude
 import { typeDef as Subject, resolvers as SubjectResolvers } from './types/subject'
 import { typeDef as Teacher, resolvers as TeacherResolvers } from './types/teacher'
 import { typeDef as User, resolvers as UserResolvers } from './types/user'
+import { typeDef as Organization, resolvers as OrganizationResolvers } from './types/organization'
 
 const Query = gql`
   # Put fake fields on each Query & Mutation as below because currently schema cannot have empty type
@@ -68,6 +69,7 @@ export default makeExecutableSchema({
     Subject,
     Teacher,
     User,
+    Organization,
   ],
   resolvers: merge(
     resolvers,
@@ -80,5 +82,6 @@ export default makeExecutableSchema({
     SubjectResolvers,
     TeacherResolvers,
     UserResolvers,
+    OrganizationResolvers,
   ),
 });

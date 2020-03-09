@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose'
+import { Schema, model, Document, Types } from 'mongoose'
 import { Person } from './person'
 import { Organization } from './organization'
 
@@ -33,5 +33,11 @@ const UsersSchema = new Schema({
     virtuals: true,
   }
 })
+
+UsersSchema.virtual('id')
+  .get(function() { return this._id.toString() })
+  .set(function (id: string) {
+    this._id = Types.ObjectId(id)
+  })
 
 export const UsersModel = model<User>('Users', UsersSchema)

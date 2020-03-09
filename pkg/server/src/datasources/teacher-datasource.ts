@@ -1,5 +1,5 @@
 import { DataSource } from 'apollo-datasource'
-import { TeachersModel, Teacher, PersonsModel } from '../models'
+import { TeachersModel, Teacher, PersonsModel, UsersModel } from '../models'
 
 export class TeacherDataSource extends DataSource {
   async selectAll(): Promise<Array<Teacher>> {
@@ -8,14 +8,6 @@ export class TeacherDataSource extends DataSource {
       (err, records) => records.map(record => record.toObject())
     )
     return teachers
-  }
-
-  async currentTeacher(): Promise<Teacher> {
-    const teachers = await TeachersModel.find(
-      {},
-      (err, records) => records.map(record => record.toObject())
-    )
-    return teachers[0]
   }
 
   async findById(id: string): Promise<Teacher> {
@@ -35,4 +27,13 @@ export class TeacherDataSource extends DataSource {
     const teacher = await teacherModel.save()
     return teacher.toObject()
   }
+
+  async findTeacherByUserId(userId: string): Promise<Teacher> {
+    const user = await UsersModel.findById(userId)
+    const teacher = await TeachersModel.findOne({
+      person: user.person
+    })
+    return teacher.toObject()
+  }
+
 }

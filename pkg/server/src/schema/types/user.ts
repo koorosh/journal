@@ -21,7 +21,7 @@ export const typeDef = gql`
 export const resolvers: GraphQLResolverMap<Context> = {
   Query: {
     getUser: (_, { id }, { dataSources }) => dataSources.users.findById(id),
-    currentUser: (_, __, { ctx, dataSources }) =>
-      dataSources.users.findById(ctx.user.id)
+    currentUser: (_, __, { user, dataSources }) =>
+      dataSources.users.findById(user.id)
   }
 }

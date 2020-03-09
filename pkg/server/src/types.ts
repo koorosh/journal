@@ -29,14 +29,13 @@ export interface DataSourceMap {
   organizations: OrganizationDataSource,
 }
 
-export type ExtContext = {
-  user: {
-    id: string
-    roles: UserRoles
-  }
+export type UserData = {
+  id: string
+  roles: UserRoles
 }
 
 export interface Context {
-  dataSources: DataSourceMap,
-  ctx: RouterContext & ExtContext
+  dataSources: DataSourceMap
+  ctx: RouterContext
+  user: UserData
 }

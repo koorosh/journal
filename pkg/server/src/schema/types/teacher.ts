@@ -25,8 +25,10 @@ export const typeDef = gql`
 
 export const resolvers: GraphQLResolverMap<Context> = {
   Query: {
-    teachers: (_, __, { dataSources }) => dataSources.teachers.selectAll(),
-    currentTeacher: (_, __, { dataSources }) => dataSources.teachers.currentTeacher(),
+    teachers: (_, __, { dataSources }) =>
+      dataSources.teachers.selectAll(),
+    currentTeacher: (_, __, { dataSources, user }) =>
+      dataSources.teachers.findTeacherByUserId(user.id),
   },
   Mutation: {
     createTeacher: (_, { firstName, lastName, phone }, { dataSources }) =>

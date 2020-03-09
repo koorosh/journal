@@ -23,7 +23,7 @@ export default async function loginUser(loginData: LoginData): Promise<boolean> 
     localStorage.setItem('token', token)
 
     if (requirePasswordChange) {
-      localStorage.setItem('requirePasswordChange', token)
+      localStorage.setItem('requirePasswordChange', requirePasswordChange)
     } else {
       localStorage.removeItem('requirePasswordChange')
     }

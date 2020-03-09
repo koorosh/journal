@@ -9,7 +9,7 @@ import history from './history'
 import { Attendance, AttendanceReport, Home, Lesson, NewLesson } from './views'
 import { Layout } from './layout'
 import { Reports } from './views/reports'
-import { Login } from './views/account'
+import { ChangePassword, Login } from './views/account'
 
 const App: React.FC = () => {
   return (
@@ -41,6 +41,9 @@ const App: React.FC = () => {
             </Route>
             <Route exact path="/login">
               <Login />
+            </Route>
+            <Route exact path="/changePassword">
+              <ChangePassword />
             </Route>
           </Switch>
         </Layout>

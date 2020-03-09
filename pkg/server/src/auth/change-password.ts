@@ -9,9 +9,9 @@ const router = new Router({
 })
 
 router.post('/changepassword', jwt, async (ctx: RouterContext) => {
-  const { oldPassword, password, confirmPassword } = ctx.request.body
+  const { password, newPassword, confirmPassword } = ctx.request.body
 
-  if (!oldPassword || !password || !confirmPassword) {
+  if (!password || !newPassword || !confirmPassword) {
     ctx.status = 400
     ctx.body = {
       error: `Expected oldPassword, password, confirmPassword, and organizationId fields.`
@@ -19,7 +19,7 @@ router.post('/changepassword', jwt, async (ctx: RouterContext) => {
     return
   }
 
-  if (password !== confirmPassword) {
+  if (newPassword !== confirmPassword) {
     ctx.status = 400
     ctx.body = {
       error: `Password and Confirmation Password must be equal`
@@ -29,7 +29,7 @@ router.post('/changepassword', jwt, async (ctx: RouterContext) => {
 
   const user = await UsersModel.findById(ctx.state.user.id)
 
-  if (!await bcrypt.compare(oldPassword, user.password)) {
+  if (!await bcrypt.compare(password, user.password)) {
     ctx.status = 401
     ctx.body = {
       error: `Old password is incorrect.`
@@ -37,7 +37,7 @@ router.post('/changepassword', jwt, async (ctx: RouterContext) => {
     return
   }
 
-  user.password = await bcrypt.hash(password, 10)
+  user.password = await bcrypt.hash(newPassword, 10)
   user.status = 'active'
   await user.save()
 

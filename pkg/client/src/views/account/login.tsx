@@ -15,6 +15,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useOrganizations } from '../../hooks/use-organizations'
 import { Organization } from '../../interfaces'
 import loginUser from '../../core/login-user'
+import { requireChangePassword } from '../../core/change-user-password'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -61,7 +62,11 @@ export const Login = () => {
     })
 
     if (isLoggedIn) {
-      history.push('/today')
+      if (requireChangePassword()) {
+        history.push('/changePassword')
+      } else {
+        history.push('/today')
+      }
     }
   }
 
@@ -73,7 +78,7 @@ export const Login = () => {
           <LockOutlinedIcon/>
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          Увійти
         </Typography>
         <div className={classes.form}>
           <TextField

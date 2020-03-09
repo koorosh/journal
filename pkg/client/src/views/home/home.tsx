@@ -229,13 +229,6 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
                     </ListItem>
                     <Divider variant={'middle'}/>
                   </>
-                  // <ListItem
-                  //   key={lesson.order}
-                  //   button
-                  //   onClick={handleLessonClick(lesson)}
-                  // >
-                  //   <ListItemText primary={lesson.order} />
-                  // </ListItem>
                 )
               }
             })

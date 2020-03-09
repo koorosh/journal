@@ -111,27 +111,23 @@ export const Lesson: React.FC = () => {
     )
   } else if (isToday(lesson?.date|| new Date()) || !isBefore((lesson?.date || new Date()), new Date)) {
     commentText = (
-      <>
-        <Typography
-          component="span"
-          variant="subtitle2"
-          className={classes.notFilledComment}
-        >
-          🟠 Не заповнено
-        </Typography>
-      </>
+      <Typography
+        component="span"
+        variant="subtitle2"
+        className={classes.notFilledComment}
+      >
+        🟠 Не заповнено
+      </Typography>
     )
   } else {
     commentText = (
-      <>
-        <Typography
-          component="span"
-          variant="subtitle2"
-          className={classes.notFilledPastComment}
-        >
-          🔴 Не заповнено
-        </Typography>
-      </>
+      <Typography
+        component="span"
+        variant="subtitle2"
+        className={classes.notFilledPastComment}
+      >
+        🔴 Не заповнено
+      </Typography>
     )
   }
 

@@ -1,18 +1,20 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom"
+import { Router, Route, Switch, Redirect } from "react-router-dom"
 import { ApolloProvider } from '@apollo/react-hooks'
 
 import './App.css';
 import client from './graphql-client'
+import history from './history'
 
 import { Attendance, AttendanceReport, Home, Lesson, NewLesson } from './views'
 import { Layout } from './layout'
 import { Reports } from './views/reports'
+import { Login } from './views/account'
 
 const App: React.FC = () => {
   return (
-    <ApolloProvider client={client}>
-      <BrowserRouter>
+    <Router history={history}>
+      <ApolloProvider client={client}>
         <Layout>
           <Switch>
             <Redirect exact from="/" to="/today" />
@@ -37,10 +39,13 @@ const App: React.FC = () => {
             <Route exact path="/reports">
               <Reports />
             </Route>
+            <Route exact path="/login">
+              <Login />
+            </Route>
           </Switch>
         </Layout>
-      </BrowserRouter>
-    </ApolloProvider>
+      </ApolloProvider>
+    </Router>
   )
 }
 

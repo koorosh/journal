@@ -9,14 +9,14 @@ export const typeDef = gql`
     adminUser: User!
   }
   extend type Query {
-    getOrganization(id: ID!): Organization
-    getOrganizations: [Organization]
+    organizationById(id: ID!): Organization
+    organizations: [Organization]
   }
 `
 
 export const resolvers: GraphQLResolverMap<Context> = {
   Query: {
-    getOrganization: (_, { id }, { dataSources }) => dataSources.organizations.findById(id),
-    getOrganizations: (_, __, { dataSources }) => dataSources.organizations.selectAll(),
+    organizationById: (_, { id }, { dataSources }) => dataSources.organizations.findById(id),
+    organizations: (_, __, { dataSources }) => dataSources.organizations.selectAll(),
   }
 }

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
   Button,
-  ButtonGroup,
   CircularProgress,
   createStyles, Divider,
   Drawer,
@@ -18,17 +17,13 @@ import {
 import DateFnsUtils from '@date-io/date-fns'
 import ukLocale from 'date-fns/locale/uk'
 import { gql } from 'apollo-boost'
-import { useHistory, useLocation, useParams } from 'react-router-dom'
-import { useLazyQuery, useMutation, useQuery } from '@apollo/react-hooks'
+import { useHistory, useLocation } from 'react-router-dom'
+import { useMutation, useQuery } from '@apollo/react-hooks'
 import { deepOrange, green } from '@material-ui/core/colors'
 
 import { Group, Lesson, Subject } from '../../interfaces'
 import { Header } from '../../layout'
 import { useCurrentTeacher } from '../../hooks/use-current-teacher'
-
-interface NewLessonProps {
-
-}
 
 interface State {
   initialLesson?: Lesson
@@ -56,7 +51,6 @@ const useStyles = makeStyles((theme: Theme) =>
       width: theme.spacing(4),
       height: theme.spacing(4),
       fontSize: theme.typography.pxToRem(18),
-      // marginLeft:
     },
     studentAvatar: {
       width: theme.spacing(4),
@@ -114,7 +108,7 @@ const lessonsNo = [1, 2, 3, 4, 5, 6, 7]
 
 type DrawerContentView = 'date' | 'lessonNo' | 'subjects' | 'groups'
 
-export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
+export const NewLesson: React.FC = () => {
   const classes = useStyles()
   const history = useHistory()
   const location = useLocation<State>()
@@ -127,7 +121,6 @@ export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
   }
 
   const {
-    error,
     loading,
     data,
   } = useQuery<InitialQueryData>(INITIAL_DATA)
@@ -287,6 +280,7 @@ export const NewLesson: React.FC<NewLessonProps> = (props: NewLessonProps) => {
     <>
       <Header
         title="Новий урок"
+        backButton
         actionControl={
           <Button
             disabled={!canSubmit}

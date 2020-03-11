@@ -5,7 +5,6 @@ import {
   Divider, Drawer, IconButton,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemText,
   makeStyles, Theme, Toolbar, Typography
 } from '@material-ui/core'
@@ -125,9 +124,7 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
     toggleDrawer(false)()
   }
 
-  if (!data) return null
-
-  const lessonsByOrder = groupBy(data.lessonsByTeacher, lesson => lesson.order)
+  const lessonsByOrder = groupBy(data?.lessonsByTeacher, lesson => lesson.order)
   const lessonsList = new Array(LESSONS_PER_DAY_COUNT)
     .fill(1)
     .map((_, idx) => {
@@ -169,7 +166,7 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
       <>
         <List>
           {
-            lessonsList.map(lesson => {
+            data && lessonsList.map(lesson => {
               if (lesson.id) {
                 return (
                   <>

@@ -1,65 +1,30 @@
 import React, { useEffect, useState } from 'react'
 import { chain } from 'lodash'
 import {
-  Avatar,
   Button,
-  CircularProgress,
-  createStyles, Divider,
+  Checkbox,
+  createStyles,
+  Divider,
   List,
   ListItem,
   ListItemSecondaryAction,
-  ListItemText, ListSubheader,
-  makeStyles,
-  Paper,
-  Theme
+  ListItemText, ListSubheader, makeStyles, Theme,
 } from '@material-ui/core'
+
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+
 import { gql } from 'apollo-boost'
-import { useHistory, useLocation, useParams } from 'react-router-dom'
-import { useLazyQuery, useMutation, useQuery } from '@apollo/react-hooks'
-import { deepOrange, green } from '@material-ui/core/colors'
+import { useHistory, useParams } from 'react-router-dom'
+import { useMutation } from '@apollo/react-hooks'
 
 import { Header } from '../../layout'
 import { useLesson } from '../../hooks/use-lesson'
 import { useAttendancesByLessonId } from '../../hooks/use-attendance'
 
-interface AttendanceProps { }
-
 interface StudentsMap {
   [studentId: string]: boolean
 }
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: '100%',
-      maxWidth: 360,
-      backgroundColor: theme.palette.background.paper,
-    },
-    selectedOption: {
-      color: '#fff',
-      backgroundColor: green[500],
-    },
-    checkedStudentAvatar: {
-      color: theme.palette.getContrastText(deepOrange[500]),
-      backgroundColor: deepOrange[500],
-      width: theme.spacing(4),
-      height: theme.spacing(4),
-      fontSize: theme.typography.pxToRem(18),
-      // marginLeft:
-    },
-    studentAvatar: {
-      width: theme.spacing(4),
-      height: theme.spacing(4),
-      fontSize: theme.typography.pxToRem(16),
-    },
-    drawer: {
-      padding: theme.spacing(1)
-    },
-    listItemValue: {
-      flexGrow: 0
-    }
-  }),
-)
 
 const CREATE_ATTENDANCE = gql`
   mutation createBatchAttendancesForLesson($attendances: [CreateAttendancePayload]!, $lessonId: ID!) {
@@ -73,10 +38,17 @@ interface AttendanceParams {
   lessonId: string
 }
 
-export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) => {
-  const classes = useStyles()
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    selectedItem: {
+      color: theme.palette.error.main,
+    },
+  }),
+)
+
+export const Attendance: React.FC = () => {
+
   const history = useHistory()
-  const location = useLocation()
   const params = useParams<AttendanceParams>()
 
   const [lesson] = useLesson(params.lessonId)
@@ -94,6 +66,8 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
     })
   }, [attendances])
 
+  const classes = useStyles()
+
   const toggleStudentSelection = (studentId: string) =>
     (_event: React.MouseEvent<HTMLElement>) => {
       setSelectedStudents(prevState => ({
@@ -101,6 +75,13 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
         [studentId]: !prevState[studentId],
       }))
     }
+
+  const setStudentState = (studentId: string) => (e: React.ChangeEvent<HTMLInputElement>, nextState: boolean) => {
+    setSelectedStudents(prevState => ({
+      ...prevState,
+      [studentId]: nextState,
+    }))
+  }
 
   const [createAttendances] = useMutation(CREATE_ATTENDANCE, {
     variables: {
@@ -125,14 +106,13 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
     selectedStudents,
   ])
 
-  if (lesson === undefined) return <CircularProgress/>
-
-  const students = lesson.group.students || []
+  const students = lesson?.group?.students || []
 
   return (
     <>
       <Header
         title="Перекличка"
+        backButton
         actionControl={
           <Button
             disabled={!canSubmit}
@@ -158,17 +138,25 @@ export const Attendance: React.FC<AttendanceProps> = (props: AttendanceProps) =>
       >
         {
           students.map((student, idx) => {
+            const isSelected = Boolean(selectedStudents[student.id])
             return (
               <>
                 <ListItem
                   button
                   onClick={toggleStudentSelection(student.id)}
-                  key={idx}>
+                  key={idx}
+                  className={isSelected ? classes.selectedItem : undefined}
+                >
                   <ListItemText
                     primary={`${student.person.lastName} ${student.person.firstName[0]}`}
                   />
-                  <ListItemSecondaryAction hidden={!selectedStudents[student.id]}>
-                    <Avatar>H</Avatar>
+                  <ListItemSecondaryAction>
+                    <Checkbox
+                      onChange={setStudentState(student.id)}
+                      checked={isSelected}
+                      icon={<RadioButtonUncheckedIcon color="disabled" />}
+                      checkedIcon={<HighlightOffIcon color="error" />}
+                    />
                   </ListItemSecondaryAction>
                 </ListItem>
                 <Divider />

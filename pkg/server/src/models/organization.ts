@@ -12,14 +12,6 @@ const OrganizationsSchema = new Schema({
 
 OrganizationsSchema.index({ name: 1 }, { unique: true })
 
-function populateModel() {
-  this.populate('adminUser')
-}
-
-OrganizationsSchema.pre('find', populateModel)
-OrganizationsSchema.pre('findOne', populateModel)
-OrganizationsSchema.pre('findOneAndUpdate', populateModel)
-
 OrganizationsSchema.virtual('id')
   .get(function() { return this._id.toString() })
   .set(function (id: string) {

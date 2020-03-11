@@ -34,6 +34,16 @@ const UsersSchema = new Schema({
   }
 })
 
+UsersSchema.index({ person: 1 }, { unique: true })
+
+function populateModel() {
+  this.populate('person')
+}
+
+UsersSchema.pre('find', populateModel)
+UsersSchema.pre('findOne', populateModel)
+UsersSchema.pre('findOneAndUpdate', populateModel)
+
 UsersSchema.virtual('id')
   .get(function() { return this._id.toString() })
   .set(function (id: string) {

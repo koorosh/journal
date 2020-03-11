@@ -20,14 +20,6 @@ const PersonsSchema = new Schema({
   }
 })
 
-function populateModel() {
-  this.populate('parents')
-}
-
-PersonsSchema.pre('find', populateModel)
-PersonsSchema.pre('findOne', populateModel)
-PersonsSchema.pre('findOneAndUpdate', populateModel)
-
 PersonsSchema.virtual('id')
   .get(function() { return this._id.toString() })
   .set(function (id: string) {

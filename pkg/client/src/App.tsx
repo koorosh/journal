@@ -10,6 +10,7 @@ import { Attendance, AttendanceReport, Home, Lesson, NewLesson } from './views'
 import { Layout } from './layout'
 import { Reports } from './views/reports'
 import { ChangePassword, Login } from './views/account'
+import { SettingsView } from './views/settings'
 
 const App: React.FC = () => {
   return (
@@ -44,6 +45,9 @@ const App: React.FC = () => {
             </Route>
             <Route exact path="/changePassword">
               <ChangePassword />
+            </Route>
+            <Route exact path="/settings">
+              <SettingsView />
             </Route>
           </Switch>
         </Layout>

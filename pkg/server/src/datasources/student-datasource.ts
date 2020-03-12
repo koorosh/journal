@@ -1,5 +1,5 @@
 import { DataSource } from 'apollo-datasource'
-import { GroupsModel, PersonsModel, Student, StudentsModel } from '../models'
+import { GroupsModel, ParentsModel, Person, PersonsModel, Student, StudentsModel } from '../models'
 
 export class StudentDataSource extends DataSource {
   async selectAll(): Promise<Array<Student>> {
@@ -23,23 +23,61 @@ export class StudentDataSource extends DataSource {
     return student.toObject()
   }
 
-  async create(firstName: string, lastName: string, phone: string, groupId?: string): Promise<Student> {
+  async create(
+    firstName: string,
+    lastName: string,
+    middleName: string,
+    phones: string[],
+    groupId?: string,
+    parentPersons?: Person[]
+  ): Promise<Student> {
+
+    // Iterate over persons and update with the same values to ensure that we
+    // do not insert any duplicates
+    const parentPersonsData = await Promise.all((parentPersons || []).map(p =>
+      PersonsModel.findOneAndUpdate(p, p, { new: true, upsert: true })
+    ))
+    const parentModels = parentPersonsData.map(person =>
+      ParentsModel.findOneAndUpdate(
+        { person },
+        { person },
+        { new: true, upsert: true }
+      )
+    )
+
+    const parents = await Promise.all(parentModels)
+
     const personModel = await PersonsModel.create({
       firstName,
       lastName,
-      phone
+      middleName,
+      phones,
+      parents,
     })
 
     const studentModel = new StudentsModel({
       person: personModel
     })
 
-    const student = await studentModel.save()
-
     if (groupId) {
-      await GroupsModel.findByIdAndUpdate(groupId, { '$push': { 'students': student._id } })
+      await GroupsModel.findByIdAndUpdate(
+        groupId,
+        { '$push': { 'students': studentModel._id } },
+        { upsert: true }
+      )
     }
-
+    const student = await studentModel.save()
     return student.toObject()
+  }
+
+  async createMany(students: any[]): Promise<Student[]> {
+    return Promise.all(students.map(student => this.create(
+      student.firstName,
+      student.lastName,
+      student.middleName,
+      student.phones,
+      student.groupId,
+      student.parents,
+    )))
   }
 }

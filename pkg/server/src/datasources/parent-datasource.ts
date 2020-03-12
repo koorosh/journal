@@ -17,11 +17,12 @@ export class ParentDataSource extends DataSource {
     return parent.toObject()
   }
 
-  async create(firstName: string, lastName: string, phone: string, groupId?: string): Promise<Parent> {
+  async create(firstName: string, lastName: string, middleName: string, phones: string, groupId?: string): Promise<Parent> {
     const personModel = await PersonsModel.create({
       firstName,
       lastName,
-      phone
+      middleName,
+      phones
     })
 
     const parentModel = new ParentsModel({

@@ -15,11 +15,12 @@ export class TeacherDataSource extends DataSource {
     return teacher.toObject()
   }
 
-  async create(firstName: string, lastName: string, phone: string): Promise<Teacher> {
+  async create(firstName: string, lastName: string, middleName: string, phones?: string[]): Promise<Teacher> {
     const personModel = await PersonsModel.create({
       firstName,
       lastName,
-      phone
+      middleName,
+      phones
     })
     const teacherModel = new TeachersModel({
       person: personModel

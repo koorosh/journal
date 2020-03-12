@@ -17,7 +17,8 @@ export const typeDef = gql`
     createParent(
       firstName: String!
       lastName: String!
-      phone: String
+      middleName: String!
+      phones: [String]
       relationship: String!
       childPersonId: ID!
     ): Parent
@@ -29,7 +30,7 @@ export const resolvers: GraphQLResolverMap<Context> = {
     // TODO: parentsByStudentId ???
   },
   Mutation: {
-    createParent: (_, { firstName, lastName, phone, childPersonId }, { dataSources }) =>
-      dataSources.parents.create(firstName, lastName, phone),
+    createParent: (_, { firstName, lastName, middleName, phones, childPersonId }, { dataSources }) =>
+      dataSources.parents.create(firstName, lastName, middleName, phones),
   },
 }

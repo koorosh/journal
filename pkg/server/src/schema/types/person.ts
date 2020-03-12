@@ -8,6 +8,7 @@ export const typeDef = gql`
     id: ID!
     firstName: String!
     lastName: String!
+    middleName: String!
     phone: String
     parents: [Parent]
   }

@@ -5,14 +5,16 @@ export interface Person extends Document {
   id: string
   firstName: string
   lastName: string
-  phone: string
+  middleName: string
+  phones: string[]
   parents?: Parent[]
 }
 
 const PersonsSchema = new Schema({
   firstName: { type: String },
   lastName: { type: String },
-  phone: { type: String },
+  middleName: { type: String },
+  phones: [{ type: String }],
   parents: [{ type: Schema.Types.ObjectId, ref: 'Parents' }],
 }, {
   toObject: {

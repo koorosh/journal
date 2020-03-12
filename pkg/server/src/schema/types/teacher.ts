@@ -18,7 +18,8 @@ export const typeDef = gql`
     createTeacher(
       firstName: String!
       lastName: String!
-      phone: String
+      middleName: String!
+      phones: [String]
     ): Teacher
   }
 `
@@ -31,7 +32,7 @@ export const resolvers: GraphQLResolverMap<Context> = {
       dataSources.teachers.findTeacherByUserId(user.id),
   },
   Mutation: {
-    createTeacher: (_, { firstName, lastName, phone }, { dataSources }) =>
-      dataSources.teachers.create(firstName, lastName, phone),
+    createTeacher: (_, { firstName, lastName, middleName, phones }, { dataSources }) =>
+      dataSources.teachers.create(firstName, lastName, middleName, phones),
   },
 }

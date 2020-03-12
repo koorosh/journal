@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose'
 import { Person } from './person'
-import { Group, GroupsModel } from './group'
+import { Group } from './group'
 
 export interface Student extends Document {
   id: string

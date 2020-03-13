@@ -1,8 +1,9 @@
-import React, { PropsWithChildren } from 'react'
-import { makeStyles } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Container from '@material-ui/core/Container';
-import { Footer } from './footer'
+import React from 'react'
+import {
+  Container,
+  CssBaseline,
+  makeStyles,
+} from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -25,11 +26,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export interface LayoutProps {
-
-}
-
-export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWithChildren<LayoutProps>) => {
+export const Layout: React.FC = props => {
   const classes = useStyles();
   return (
     <div className={classes.root}>
@@ -39,7 +36,6 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
           { props.children }
         </Container>
       </main>
-      <Footer />
     </div>
   );
 }

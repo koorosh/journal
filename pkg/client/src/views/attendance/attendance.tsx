@@ -28,6 +28,7 @@ import { useMutation } from '@apollo/react-hooks'
 
 import { useLesson } from '../../hooks/use-lesson'
 import { useAttendancesByLessonId } from '../../hooks/use-attendance'
+import { formatISO } from "date-fns"
 
 interface StudentsMap {
   [studentId: string]: boolean
@@ -114,8 +115,22 @@ export const Attendance: React.FC = () => {
 
   const onSubmit = React.useCallback(async () => {
     await createAttendances()
-    history.goBack()
+    const date = lesson?.date
+    if (date) {
+      const dateIso = formatISO(date, { representation: 'date' })
+      const searchParams = new URLSearchParams(history.location.search)
+      searchParams.set('date', dateIso)
+      history.push({
+        ...history.location,
+        pathname: '/today',
+        search: searchParams.toString()
+      })
+    } else {
+      history.push('/today')
+    }
+
   }, [
+    lesson,
     selectedStudents,
   ])
 

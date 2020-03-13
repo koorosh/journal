@@ -1,5 +1,6 @@
-import React, { MouseEvent, useEffect, useState } from 'react'
+import React, { MouseEvent, useCallback, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
+import { parseISO, formatISO } from 'date-fns'
 import {
   createStyles,
   Divider, Drawer, IconButton,
@@ -83,10 +84,12 @@ interface LessonsByTeacherResponse {
 export const Home: React.FC = () => {
   const classes = useStyles()
   const history = useHistory()
-  const [date, setDate] = useState<Date>(new Date())
+  const searchParams = new URLSearchParams(history.location.search)
+  const dateStringFromParams = searchParams.get('date')
+  const initialDate = dateStringFromParams ? parseISO(dateStringFromParams) : new Date()
+  const [date, setDate] = useState<Date>(initialDate)
   const [teacher] = useCurrentTeacher()
-
-  const [queryLessonsByTeacherId, { loading, data }] = useLazyQuery<LessonsByTeacherResponse>(
+  const [queryLessonsByTeacherId, { data }] = useLazyQuery<LessonsByTeacherResponse>(
     TEACHER_LESSONS_FOR_DAY_QUERY,
     {
       variables: {
@@ -103,6 +106,17 @@ export const Home: React.FC = () => {
   }, [teacher?.id, date])
 
   const [isOpenDrawer, setDrawerState] = useState(false)
+
+  const onDateChange = useCallback((date: Date) => {
+    setDate(date)
+    const dateIso = formatISO(date, { representation: 'date' })
+    const searchParams = new URLSearchParams(history.location.search)
+    searchParams.set('date', dateIso)
+    history.push({
+      ...history.location,
+      search: searchParams.toString(),
+    })
+  }, [])
 
   const toggleDrawer = (open: boolean) => () => setDrawerState(open)
 
@@ -155,7 +169,7 @@ export const Home: React.FC = () => {
         >
           <DateNavigator
             date={date}
-            onChange={setDate}
+            onChange={onDateChange}
           />
         </Toolbar>
       </Header>

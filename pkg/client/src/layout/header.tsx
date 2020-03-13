@@ -59,6 +59,7 @@ export const Header: React.FC<PropsWithChildren<HeaderProps>> = (props: PropsWit
           <Typography
             variant="h6"
             className={classes.title}
+            noWrap
           >
             {title}
           </Typography>

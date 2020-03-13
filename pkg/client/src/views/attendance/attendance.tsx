@@ -1,24 +1,31 @@
 import React, { useEffect, useState } from 'react'
 import { chain, sortBy } from 'lodash'
 import {
+  AppBar,
   Button,
   Checkbox,
   createStyles,
   Divider,
+  IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
-  ListItemText, ListSubheader, makeStyles, Theme,
+  ListItemText,
+  ListSubheader,
+  makeStyles,
+  Theme,
+  Toolbar,
+  Typography,
 } from '@material-ui/core'
 
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-
+import CloseIcon from '@material-ui/icons/Close';
+import SaveIcon from '@material-ui/icons/Save';
 import { gql } from 'apollo-boost'
 import { useHistory, useParams } from 'react-router-dom'
 import { useMutation } from '@apollo/react-hooks'
 
-import { Header } from '../../layout'
 import { useLesson } from '../../hooks/use-lesson'
 import { useAttendancesByLessonId } from '../../hooks/use-attendance'
 
@@ -42,6 +49,12 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     selectedItem: {
       color: theme.palette.error.main,
+    },
+    menuButton: {
+      marginRight: theme.spacing(2),
+    },
+    title: {
+      flexGrow: 1,
     },
   }),
 )
@@ -110,20 +123,35 @@ export const Attendance: React.FC = () => {
 
   return (
     <>
-      <Header
-        title="Перекличка"
-        backButton
-        actionControl={
+      <AppBar
+        variant="elevation"
+        color="primary"
+        position="fixed"
+      >
+        <Toolbar>
+          <IconButton
+            edge="start"
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="cancel"
+            onClick={history.goBack}
+          >
+            <CloseIcon />
+          </IconButton>
+          <Typography className={classes.title} variant="h6" noWrap>
+            {lesson?.group?.name}
+          </Typography>
           <Button
             disabled={!canSubmit}
             color="inherit"
             onClick={onSubmit}
+            startIcon={<SaveIcon />}
           >
             Зберегти
           </Button>
-        }
-      />
-
+        </Toolbar>
+      </AppBar>
+      <Toolbar />
       <List
         hidden={students.length === 0}
         component="nav"

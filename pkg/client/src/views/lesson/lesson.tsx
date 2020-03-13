@@ -134,7 +134,7 @@ export const Lesson: React.FC = () => {
   return (
     <>
       <Header
-        title={`${lesson?.group.name} клас - ${lesson?.subject.name}`}
+        title={`${lesson?.group.name} - ${lesson?.subject.name}`}
       />
       <ExpansionPanel>
         <ExpansionPanelSummary

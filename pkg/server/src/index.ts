@@ -6,6 +6,7 @@ import bodyParser from 'koa-bodyparser'
 import jsonwebtoken from 'jsonwebtoken'
 
 import auth from './auth'
+import { health } from './api/internal'
 
 import {
   AttendanceDataSource,
@@ -36,13 +37,15 @@ app
   .use(bodyParser())
   .use(responseTime)
   .use(logger())
-  .use(jwt.unless({ path: [/^\/auth/, /^\/graphql/] }))
+  .use(jwt.unless({ path: [/^\/auth/, /^\/graphql/, /^\/api\/internal/] }))
   .use(auth.login.routes())
   .use(auth.login.allowedMethods())
   .use(auth.register.routes())
   .use(auth.register.allowedMethods())
   .use(auth.changePassword.routes())
   .use(auth.changePassword.allowedMethods())
+  .use(health.routes())
+  .use(health.allowedMethods())
 
 connectToDb(dbUrl).catch(console.error)
 

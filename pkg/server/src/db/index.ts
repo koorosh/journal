@@ -27,3 +27,7 @@ export const connectToDb = async (url: string) => {
     useFindAndModify: false,
   })
 }
+
+export function checkConnection(): boolean {
+  return mongoose.connection.readyState === mongoose.connection.states.connected
+}

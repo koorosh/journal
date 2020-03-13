@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { chain } from 'lodash'
+import { chain, sortBy } from 'lodash'
 import {
   Button,
   Checkbox,
@@ -106,7 +106,7 @@ export const Attendance: React.FC = () => {
     selectedStudents,
   ])
 
-  const students = lesson?.group?.students || []
+  const students = sortBy(lesson?.group?.students || [], 'person.lastName')
 
   return (
     <>
@@ -148,7 +148,7 @@ export const Attendance: React.FC = () => {
                   className={isSelected ? classes.selectedItem : undefined}
                 >
                   <ListItemText
-                    primary={`${student.person.lastName} ${student.person.firstName[0]}`}
+                    primary={`${student.person.lastName} ${student.person.firstName}`}
                   />
                   <ListItemSecondaryAction>
                     <Checkbox

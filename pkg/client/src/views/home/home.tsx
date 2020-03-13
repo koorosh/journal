@@ -21,10 +21,6 @@ import DateFnsUtils from '@date-io/date-fns'
 import ukLocale from "date-fns/locale/uk"
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
 
-interface HomeProps {
-
-}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     smallIcon: {
@@ -84,7 +80,7 @@ interface LessonsByTeacherResponse {
   lessonsByTeacher: Array<Lesson>
 }
 
-export const Home: React.FC<HomeProps> = (props: HomeProps) => {
+export const Home: React.FC = () => {
   const classes = useStyles()
   const history = useHistory()
   const [date, setDate] = useState<Date>(new Date())
@@ -181,21 +177,16 @@ export const Home: React.FC<HomeProps> = (props: HomeProps) => {
                         primary={lesson?.order}
                         primaryTypographyProps={{variant: 'body1'}} />
                       <ListItemText
-                        primary={`${lesson?.subject?.name}`}
+                        primary={lesson?.group?.name}
                         primaryTypographyProps={{variant: 'body1'}}
                         secondary={
                           <>
                             <Typography
                               component="span"
-                              variant="body1"
-                            >Клас: </Typography>
-                            {lesson?.group?.name}
-                            <span className={classes.verticalDivider}>{'|'}</span>
-                            <Typography
-                              component="span"
-                              variant="body1"
-                            >Каб: </Typography>
-                            {(Math.round(Math.random() * 1000))}
+                              variant="body2"
+                            >
+                              {lesson?.subject?.name}
+                            </Typography>
                           </>
                         }
                         secondaryTypographyProps={{variant: 'subtitle2'}}

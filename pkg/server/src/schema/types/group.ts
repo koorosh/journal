@@ -1,6 +1,7 @@
 import { gql } from 'apollo-server-koa'
 import { GraphQLResolverMap } from 'apollo-graphql'
 import { Context } from '../../types'
+import { getCurrentEducationYear } from '../../helpers'
 
 export const typeDef = gql`
 
@@ -36,7 +37,8 @@ export const resolvers: GraphQLResolverMap<Context> = {
     groups: (_, __, { dataSources }) => dataSources.groups.selectAll(),
     group: (_, { id }, { dataSources }) => dataSources.groups.findById(id),
     groupsByYear: (_, { year }, { dataSources }) => dataSources.groups.findByYear(year),
-    groupsThisYear: (_, { year }, { dataSources }) => dataSources.groups.findByYear(new Date().getFullYear()),
+    groupsThisYear: (_, { year }, { dataSources }) =>
+      dataSources.groups.findByYear(getCurrentEducationYear()),
   },
   Mutation: {
     createGroup: (_, { name, year }, { dataSources }) =>

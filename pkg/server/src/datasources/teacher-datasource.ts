@@ -3,16 +3,14 @@ import { TeachersModel, Teacher, PersonsModel, UsersModel } from '../models'
 
 export class TeacherDataSource extends DataSource {
   async selectAll(): Promise<Array<Teacher>> {
-    const teachers = await TeachersModel.find(
+    return TeachersModel.find(
       {},
       (err, records) => records.map(record => record.toObject())
     )
-    return teachers
   }
 
   async findById(id: string): Promise<Teacher> {
-    const teacher = await TeachersModel.findById(id)
-    return teacher.toObject()
+    return TeachersModel.findById(id)
   }
 
   async create(firstName: string, lastName: string, middleName: string, phones?: string[]): Promise<Teacher> {
@@ -25,16 +23,20 @@ export class TeacherDataSource extends DataSource {
     const teacherModel = new TeachersModel({
       person: personModel
     })
-    const teacher = await teacherModel.save()
-    return teacher.toObject()
+    return teacherModel.save()
+  }
+
+  async createAsPerson(personId: string): Promise<Teacher> {
+    const person = await PersonsModel.findById(personId)
+    const teacherModel = new TeachersModel({ person })
+    return teacherModel.save()
   }
 
   async findTeacherByUserId(userId: string): Promise<Teacher> {
     const user = await UsersModel.findById(userId)
-    const teacher = await TeachersModel.findOne({
+    return TeachersModel.findOne({
       person: user.person
     })
-    return teacher.toObject()
   }
 
 }

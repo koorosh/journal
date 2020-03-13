@@ -12,11 +12,21 @@ export const typeDef = gql`
     organizationById(id: ID!): Organization
     organizations: [Organization]
   }
+  extend type Mutation {
+    createOrganization(
+      name: String!
+      adminUserId: ID!
+    ): Organization
+  }
 `
 
 export const resolvers: GraphQLResolverMap<Context> = {
   Query: {
     organizationById: (_, { id }, { dataSources }) => dataSources.organizations.findById(id),
     organizations: (_, __, { dataSources }) => dataSources.organizations.selectAll(),
+  },
+  Mutation: {
+    createOrganization: (_, { name, adminUserId }, { dataSources }) =>
+      dataSources.organizations.create(name, adminUserId),
   }
 }

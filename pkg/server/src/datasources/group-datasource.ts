@@ -13,11 +13,7 @@ export class GroupDataSource extends DataSource {
   }
 
   async findByYear(year: number): Promise<Group[]> {
-    const groups = await GroupsModel.find(
-      { year },
-      (err, records) => records.map(record => record.toObject()))
-      .exec()
-    return groups
+    return GroupsModel.find({ year })
   }
 
   async create(name: string, year: number): Promise<Group> {

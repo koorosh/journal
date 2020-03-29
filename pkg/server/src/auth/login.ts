@@ -1,8 +1,7 @@
 import Router, { RouterContext } from 'koa-router'
 import bcrypt from 'bcrypt'
 import jsonwebtoken from 'jsonwebtoken'
-
-import { UsersModel } from '../models'
+import { dbModelFactory, Organization, User } from '../models'
 
 const router = new Router({
   prefix: '/auth'
@@ -19,7 +18,13 @@ router.post('/login', async (ctx: RouterContext) => {
     return
   }
 
-  const user = await UsersModel.findOne({
+  const organizationsModel = dbModelFactory<Organization>('organizations')
+
+  const { tenantId } = await organizationsModel.findById(organizationId)
+
+  const usersModel = dbModelFactory<User>('users', tenantId)
+
+  const user = await usersModel.findOne({
     phone,
     organization: organizationId,
   })
@@ -55,6 +60,7 @@ router.post('/login', async (ctx: RouterContext) => {
     token: jsonwebtoken.sign({
       id: user.id,
       roles: user.roles,
+      tenantId: organizationId,
     }, process.env.JWT_SECRET),
     requirePasswordChange: user.status === 'initiated',
   }

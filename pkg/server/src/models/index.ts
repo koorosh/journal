@@ -8,3 +8,5 @@ export * from './student'
 export * from './teacher'
 export * from './user'
 export * from './organization'
+
+export * from './db-model-factory'

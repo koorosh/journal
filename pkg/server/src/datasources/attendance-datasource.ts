@@ -1,11 +1,9 @@
-import { DataSource } from 'apollo-datasource'
+import { MongoDataSource } from '../db/mongo-datasource'
+import { Attendance, AttendanceReason } from '../models'
 
-import { AttendancesModel, Attendance, AttendanceReason, LessonsModel } from '../models'
-
-export class AttendanceDataSource extends DataSource {
-  async findById(id: string): Promise<Attendance> {
-    const attendance = await AttendancesModel.findById(id)
-    return attendance.toObject()
+export class AttendanceDataSource extends MongoDataSource<Attendance> {
+  constructor() {
+    super('attendances');
   }
 
   async create(
@@ -13,14 +11,14 @@ export class AttendanceDataSource extends DataSource {
     lessonId: string,
     reason?: AttendanceReason,
   ): Promise<Attendance> {
-    const model = new AttendancesModel({
+    const model = new this.model({
       reason,
       lesson: lessonId,
       student: studentId
     })
 
     const attendance = await model.save()
-    await LessonsModel.updateOne({
+    await this.context.dataSources.lessons.model.updateOne({
       _id: lessonId
     }, {
       lastAttendanceCheck: new Date()
@@ -35,22 +33,21 @@ export class AttendanceDataSource extends DataSource {
   }
 
   async findByGroupAndDate(groupId: string, date: Date): Promise<Attendance[]> {
-    const lessons = await LessonsModel.find({
+    const lessons = await this.context.dataSources.lessons.model.find({
       group: groupId,
       date
     })
-    const attendances = await AttendancesModel
-      .find({
-        lesson: {
-          $in: lessons.map(lesson => lesson._id)
-        }
-      }, (err, records) => (records || []).map(record => record.toObject()))
+    const attendances = await this.model.find({
+      lesson: {
+        $in: lessons.map(lesson => lesson._id)
+      }
+    })
 
     return attendances
   }
 
   async findByLessonId(lessonId: string): Promise<Attendance[]> {
-    const attendances = await AttendancesModel
+    const attendances = await this.model
       .find({
         lesson: lessonId
       })
@@ -59,7 +56,7 @@ export class AttendanceDataSource extends DataSource {
   }
 
   async removeByLessonId(lessonId: string) {
-    return AttendancesModel.remove({
+    return this.model.remove({
       lesson: lessonId
     })
   }

@@ -1,23 +1,13 @@
-import { DataSource } from 'apollo-datasource'
-import { Subject, SubjectsModel } from '../models'
+import { Subject } from '../models'
+import { MongoDataSource } from '../db/mongo-datasource'
 
-export class SubjectDataSource extends DataSource {
-  async selectAll(): Promise<Array<Subject>> {
-    const subjects = await SubjectsModel.find(
-      {},
-      (err, records) => records.map(record => record.toObject())
-    )
-    return subjects
-  }
-
-  async findById(id: string): Promise<Subject> {
-    const subject = await SubjectsModel.findById(id)
-    return subject.toObject()
+export class SubjectDataSource extends MongoDataSource<Subject> {
+  constructor() {
+    super('subjects');
   }
 
   async create(name: string): Promise<Subject> {
-    const subjectModel = new SubjectsModel({ name })
-    const subject = await subjectModel.save()
-    return subject.toObject()
+    const subjectModel = new this.model({ name })
+    return subjectModel.save()
   }
 }

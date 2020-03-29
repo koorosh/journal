@@ -2,10 +2,11 @@ import { Schema, model, Document, Types } from 'mongoose'
 
 import { Lesson } from './lesson'
 import { Student } from './student'
+import { modelNames } from './model-names'
 
 const AttendanceSchema = new Schema({
-  lesson: { type: Schema.Types.ObjectId, ref: 'Lessons' },
-  student: { type: Schema.Types.ObjectId, ref: 'Students' },
+  lesson: { type: Schema.Types.ObjectId, ref: modelNames.lessons },
+  student: { type: Schema.Types.ObjectId, ref: modelNames.students },
   reason: { type: String },
 }, {
   toObject: {
@@ -14,8 +15,6 @@ const AttendanceSchema = new Schema({
 })
 
 function populateModel() {
-  // this.populate('lesson')
-  //   .populate('student')
   this.populate({
     path: 'lesson',
     populate: 'group subject teacher'
@@ -81,4 +80,4 @@ export interface Attendance extends Document {
   byGroupName: (name: string) => Promise<Attendance>
 }
 
-export const AttendancesModel = model<Attendance>('Attendances', AttendanceSchema)
+export default AttendanceSchema

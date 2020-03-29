@@ -1,26 +1,20 @@
-import { DataSource } from 'apollo-datasource'
-import { GroupsModel, ParentsModel, Person, PersonsModel, Student, StudentsModel } from '../models'
+import { Person, Student } from '../models'
+import { MongoDataSource } from '../db/mongo-datasource'
+import { getCurrentEducationYear } from '../helpers'
 
-export class StudentDataSource extends DataSource {
-  async selectAll(): Promise<Array<Student>> {
-    const students = await StudentsModel.find(
-      {},
-      (err, records) => records.map(record => record.toObject())
-    )
-    return students
+export class StudentDataSource extends MongoDataSource<Student> {
+  constructor() {
+    super('students');
   }
 
   async findById(id: string): Promise<Student> {
-    const student = await StudentsModel.findById(id)
-      // group contains only one of many groups for current year.
+    return this.model.findById(id)
       .populate({
         path: 'group',
         match: {
-          year: { $eq: new Date().getFullYear() }
+          year: { $eq: getCurrentEducationYear() }
         }
       })
-      .exec()
-    return student.toObject()
   }
 
   async create(
@@ -31,14 +25,15 @@ export class StudentDataSource extends DataSource {
     groupId?: string,
     parentPersons?: Person[]
   ): Promise<Student> {
+    const { persons: Persons, parents: Parents, groups: Groups} = this.context.dataSources
 
     // Iterate over persons and update with the same values to ensure that we
     // do not insert any duplicates
     const parentPersonsData = await Promise.all((parentPersons || []).map(p =>
-      PersonsModel.findOneAndUpdate(p, p, { new: true, upsert: true })
+      Persons.model.findOneAndUpdate(p, p, { new: true, upsert: true })
     ))
     const parentModels = parentPersonsData.map(person =>
-      ParentsModel.findOneAndUpdate(
+      Parents.model.findOneAndUpdate(
         { person },
         { person },
         { new: true, upsert: true }
@@ -47,7 +42,7 @@ export class StudentDataSource extends DataSource {
 
     const parents = await Promise.all(parentModels)
 
-    const personModel = await PersonsModel.create({
+    const personModel = await Persons.model.create({
       firstName,
       lastName,
       middleName,
@@ -55,12 +50,12 @@ export class StudentDataSource extends DataSource {
       parents,
     })
 
-    const studentModel = new StudentsModel({
+    const studentModel = new this.model({
       person: personModel
     })
 
     if (groupId) {
-      await GroupsModel.findByIdAndUpdate(
+      await Groups.model.findByIdAndUpdate(
         groupId,
         { '$push': { 'students': studentModel._id } },
         { upsert: true }

@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose'
+import { Schema, Document, Types } from 'mongoose'
 
 const SubjectsSchema = new Schema({
   name: { type: String },
@@ -19,4 +19,4 @@ export interface Subject extends Document {
   name: string
 }
 
-export const SubjectsModel = model<Subject>('Subjects', SubjectsSchema)
+export default SubjectsSchema

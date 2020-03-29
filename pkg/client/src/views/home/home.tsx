@@ -10,7 +10,7 @@ import {
   makeStyles, Theme, Toolbar, Typography
 } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today';
-import { useLazyQuery } from '@apollo/react-hooks'
+import { useLazyQuery, useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { groupBy } from 'lodash'
 
@@ -89,21 +89,23 @@ export const Home: React.FC = () => {
   const initialDate = dateStringFromParams ? parseISO(dateStringFromParams) : new Date()
   const [date, setDate] = useState<Date>(initialDate)
   const [teacher] = useCurrentTeacher()
+  const teacherId = teacher?.id
+
   const [queryLessonsByTeacherId, { data }] = useLazyQuery<LessonsByTeacherResponse>(
     TEACHER_LESSONS_FOR_DAY_QUERY,
     {
       variables: {
-        teacherId: teacher?.id,
+        teacherId,
         date
       }
     }
   )
 
   useEffect(() => {
-    if (!!teacher?.id) {
+    if (!!teacherId) {
       queryLessonsByTeacherId()
     }
-  }, [teacher?.id, date])
+  }, [teacherId, date, queryLessonsByTeacherId])
 
   const [isOpenDrawer, setDrawerState] = useState(false)
 
@@ -116,7 +118,7 @@ export const Home: React.FC = () => {
       ...history.location,
       search: searchParams.toString(),
     })
-  }, [])
+  }, [history])
 
   const toggleDrawer = (open: boolean) => () => setDrawerState(open)
 
@@ -176,10 +178,10 @@ export const Home: React.FC = () => {
       <>
         <List>
           {
-            data && lessonsList.map(lesson => {
+            data && lessonsList.map((lesson, idx) => {
               if (lesson.id) {
                 return (
-                  <>
+                  <React.Fragment key={idx}>
                     <ListItem
                       key={lesson.order}
                       button
@@ -207,11 +209,11 @@ export const Home: React.FC = () => {
                       />
                     </ListItem>
                     <Divider variant={'middle'}/>
-                  </>
+                  </React.Fragment>
                 )
               } else {
                 return (
-                  <>
+                  <React.Fragment key={idx}>
                     <ListItem
                       className={classes.listItem}
                       key={lesson.order}
@@ -230,7 +232,7 @@ export const Home: React.FC = () => {
                       />
                     </ListItem>
                     <Divider variant={'middle'}/>
-                  </>
+                  </React.Fragment>
                 )
               }
             })

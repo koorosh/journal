@@ -21,14 +21,15 @@ import {
   OrganizationDataSource,
 } from './datasources'
 import schema from './schema/index'
-import { connectToDb } from './db'
 import { jwt, responseTime } from './middlewares'
 import { GRAPHQL_PATH } from './config'
 import { AuthenticationError } from 'apollo-server'
 import { Context } from './types'
+import { initModels } from './models'
 
-const dbUrl = process.env.MONGODB_URI
 const port = process.env.PORT
+
+initModels()
 
 const app = new Koa();
 
@@ -44,10 +45,10 @@ app
   .use(auth.register.allowedMethods())
   .use(auth.changePassword.routes())
   .use(auth.changePassword.allowedMethods())
+  .use(auth.rootUser.routes())
+  .use(auth.rootUser.allowedMethods())
   .use(health.routes())
   .use(health.allowedMethods())
-
-connectToDb(dbUrl).catch(console.error)
 
 const server = new ApolloServer({
   debug: true,

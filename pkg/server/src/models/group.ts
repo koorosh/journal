@@ -1,12 +1,20 @@
-import { Schema, model, Document, Types } from 'mongoose'
+import { Schema, Document, Types } from 'mongoose'
 import { Student } from './student'
+import { modelNames } from './model-names'
+
+export interface Group extends Document {
+  id: string
+  name: string
+  year: number
+  students: Student
+}
 
 const GroupsSchema = new Schema({
   name: { type: String },
   year: { type: Number },
   students: [ {
     type: Schema.Types.ObjectId,
-    ref: 'Students'
+    ref: modelNames.students
   }]
 }, {
   toObject: {
@@ -18,7 +26,7 @@ GroupsSchema.index({ name: 1, year: 1 }, { unique: true })
 GroupsSchema.index({ name: 1, year: 1, students: 1 }, { unique: true })
 
 function populateModel() {
-  this.populate('students')
+  this.populate(modelNames.students)
 }
 
 GroupsSchema.pre('find', populateModel)
@@ -31,11 +39,4 @@ GroupsSchema.virtual('id')
     this._id = Types.ObjectId(id)
   })
 
-export interface Group extends Document {
-  id: string
-  name: string
-  year: number
-  students: Student
-}
-
-export const GroupsModel = model<Group>('Groups', GroupsSchema)
+export default GroupsSchema

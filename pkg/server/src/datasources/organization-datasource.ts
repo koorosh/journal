@@ -1,22 +1,16 @@
-import { DataSource } from 'apollo-datasource'
-import { Organization, OrganizationsModel } from '../models'
+import { Organization } from '../models'
+import { MongoDataSource } from '../db/mongo-datasource'
 
-export class OrganizationDataSource extends DataSource {
-  async selectAll(): Promise<Array<Organization>> {
-    return OrganizationsModel.find({})
+export class OrganizationDataSource extends MongoDataSource<Organization> {
+  constructor() {
+    super('organizations', { globalTenant: true });
   }
 
-  async findById(id: string): Promise<Organization> {
-    const organization = await OrganizationsModel.findById(id)
-    return organization.toObject()
-  }
-
-  async create(name: string, adminUserId: string): Promise<Organization> {
-    const organizationModel = new OrganizationsModel({
-      name,
-      adminUser: adminUserId,
-    })
-    const organization = await organizationModel.save()
-    return organization.toObject()
+  async create(data: any): Promise<Organization> {
+    if (!this.context.user.roles.includes('god')) {
+      return Promise.reject(new Error('Restricted area.'))
+    }
+    const organizationModel = new this.model(data)
+    return organizationModel.save()
   }
 }

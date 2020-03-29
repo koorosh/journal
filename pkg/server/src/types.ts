@@ -30,10 +30,11 @@ export interface DataSourceMap {
 export type UserData = {
   id: string
   roles: UserRoles
+  tenantId: string
 }
 
 export interface Context {
   dataSources: DataSourceMap
   ctx: RouterContext
-  user: UserData
+  user?: UserData
 }

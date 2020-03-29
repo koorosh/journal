@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose'
 import { Person } from './person'
 import { Group } from './group'
+import { modelNames } from './model-names'
 
 export interface Student extends Document {
   id: string
@@ -9,7 +10,7 @@ export interface Student extends Document {
 }
 
 const StudentsSchema = new Schema({
-  person: { type: Schema.Types.ObjectId, ref: 'Persons' }
+  person: { type: Schema.Types.ObjectId, ref: modelNames.persons }
 }, {
   toObject: {
     virtuals: true,
@@ -37,4 +38,4 @@ StudentsSchema.virtual('group', {
   justOne: true,
 })
 
-export const StudentsModel = model<Student>('Students', StudentsSchema)
+export default StudentsSchema

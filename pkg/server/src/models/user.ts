@@ -1,9 +1,13 @@
-import { Schema, model, Document, Types } from 'mongoose'
+import { Schema, Document, Types } from 'mongoose'
 import { Person } from './person'
+import { modelNames } from './model-names'
+import { dbModelFactory } from './db-model-factory'
 import { Organization } from './organization'
 
 export type UserRoles = 'principal' | 'teacher' | 'groupManager' | 'god' | 'admin'
 export type UserStatuses = 'initiated' | 'active' | 'suspended'
+
+const OrganizationModel = dbModelFactory('organizations')
 
 export interface User extends Document {
   id: string
@@ -26,8 +30,11 @@ const UsersSchema = new Schema({
   roles: [{ type: String }],
   status: { type: String },
   isActive: [{ type: Boolean }],
-  organization: { type: Schema.Types.ObjectId, ref: 'Organizations' },
-  person: { type: Schema.Types.ObjectId, ref: 'Persons' },
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: OrganizationModel
+  },
+  person: { type: Schema.Types.ObjectId, ref: modelNames.persons },
 }, {
   toObject: {
     virtuals: true,
@@ -50,4 +57,4 @@ UsersSchema.virtual('id')
     this._id = Types.ObjectId(id)
   })
 
-export const UsersModel = model<User>('Users', UsersSchema)
+export default UsersSchema

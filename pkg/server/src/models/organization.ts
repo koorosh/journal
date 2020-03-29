@@ -1,9 +1,16 @@
-import { Schema, model, Document, Types } from 'mongoose'
-import { User } from './user'
+import { Schema, Document, Types } from 'mongoose'
+
+export interface Organization extends Document {
+  id: string
+  name: string
+  shortName: string
+  tenantId: string
+}
 
 const OrganizationsSchema = new Schema({
   name: { type: String },
-  adminUser: {type: Schema.Types.ObjectId, ref: 'Users'}
+  shortName: { type: String },
+  tenantId: { type: String },
 }, {
   toObject: {
     virtuals: true,
@@ -18,10 +25,4 @@ OrganizationsSchema.virtual('id')
     this._id = Types.ObjectId(id)
   })
 
-export interface Organization extends Document {
-  id: string
-  name: string
-  adminUser: User
-}
-
-export const OrganizationsModel = model<Organization>('Organizations', OrganizationsSchema)
+export default OrganizationsSchema

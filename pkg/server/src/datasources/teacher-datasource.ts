@@ -1,42 +1,29 @@
-import { DataSource } from 'apollo-datasource'
-import { TeachersModel, Teacher, PersonsModel, UsersModel } from '../models'
+import { Teacher } from '../models'
+import { MongoDataSource } from '../db/mongo-datasource'
 
-export class TeacherDataSource extends DataSource {
-  async selectAll(): Promise<Array<Teacher>> {
-    return TeachersModel.find(
-      {},
-      (err, records) => records.map(record => record.toObject())
-    )
+export class TeacherDataSource extends MongoDataSource<Teacher> {
+  constructor() {
+    super('teachers');
   }
 
-  async findById(id: string): Promise<Teacher> {
-    return TeachersModel.findById(id)
-  }
-
-  async create(firstName: string, lastName: string, middleName: string, phones?: string[]): Promise<Teacher> {
-    const personModel = await PersonsModel.create({
-      firstName,
-      lastName,
-      middleName,
-      phones
-    })
-    const teacherModel = new TeachersModel({
+  async create(data: Partial<Teacher>): Promise<Teacher> {
+    const personModel = await this.context.dataSources.persons.model.create(data.person)
+    const teacherModel = new this.model({
       person: personModel
     })
     return teacherModel.save()
   }
 
   async createAsPerson(personId: string): Promise<Teacher> {
-    const person = await PersonsModel.findById(personId)
-    const teacherModel = new TeachersModel({ person })
+    const person = await this.context.dataSources.persons.model.findById(personId)
+    const teacherModel = new this.model({ person })
     return teacherModel.save()
   }
 
   async findTeacherByUserId(userId: string): Promise<Teacher> {
-    const user = await UsersModel.findById(userId)
-    return TeachersModel.findOne({
+    const user = await this.context.dataSources.users.model.findById(userId)
+    return this.model.findOne({
       person: user.person
     })
   }
-
 }

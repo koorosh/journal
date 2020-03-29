@@ -1,33 +1,24 @@
-import mongoose from 'mongoose'
+import mongoose, { Connection, ConnectionOptions } from 'mongoose'
 
-mongoose.connection.on('connected', () => {
-  console.log('Connection Established')
-})
-
-mongoose.connection.on('reconnected', () => {
-  console.log('Connection Reestablished')
-})
-
-mongoose.connection.on('disconnected', () => {
-  console.log('Connection Disconnected')
-})
-
-mongoose.connection.on('close', () => {
-  console.log('Connection Closed')
-})
-
-mongoose.connection.on('error', (error) => {
-  console.log('ERROR: ' + error)
-})
-
-export const connectToDb = async (url: string) => {
-  return await mongoose.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-  })
+const dbOptions: ConnectionOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
 }
 
-export function checkConnection(): boolean {
-  return mongoose.connection.readyState === mongoose.connection.states.connected
+const SYSTEM_TENANT_ID = 'journal'
+
+const host = process.env.MONGODB_HOST
+const user = process.env.MONGODB_USER
+const password = process.env.MONGODB_PASSWORD
+
+const connectionsCache = new Map<string, mongoose.Connection>()
+
+export const getConnectionByTenantId = (tenantId: string = SYSTEM_TENANT_ID) => {
+  if (connectionsCache.has(tenantId)) {
+    return connectionsCache.get(tenantId)
+  }
+  const connection = mongoose.createConnection(`mongodb://${user}:${password}@${host}/${SYSTEM_TENANT_ID}`, dbOptions)
+  connectionsCache.set(tenantId, connection)
+  return connection
 }

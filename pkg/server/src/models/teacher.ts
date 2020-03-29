@@ -1,8 +1,9 @@
 import { Schema, model, Document, Types } from 'mongoose'
 import { Person } from './person'
+import { modelNames } from './model-names'
 
 const TeachersSchema = new Schema({
-  person: { type: Schema.Types.ObjectId, ref: 'Persons' },
+  person: { type: Schema.Types.ObjectId, ref: modelNames.persons },
   positions: [{ type: Schema.Types.String }]
 }, {
   toObject: {
@@ -32,4 +33,4 @@ export interface Teacher extends Document {
   positions: TeacherPosition[]
 }
 
-export const TeachersModel = model<Teacher>('Teachers', TeachersSchema)
+export default TeachersSchema

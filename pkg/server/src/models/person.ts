@@ -1,5 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose'
 import { Parent } from './parent'
+import { modelNames } from './model-names'
 
 export interface Person extends Document {
   id: string
@@ -15,7 +16,7 @@ const PersonsSchema = new Schema({
   lastName: { type: String },
   middleName: { type: String },
   phones: [{ type: String }],
-  parents: [{ type: Schema.Types.ObjectId, ref: 'Parents' }],
+  parents: [{ type: Schema.Types.ObjectId, ref: modelNames.parents }],
 }, {
   toObject: {
     virtuals: true,
@@ -28,4 +29,4 @@ PersonsSchema.virtual('id')
     this._id = Types.ObjectId(id)
   })
 
-export const PersonsModel = model<Person>('Persons', PersonsSchema)
+export default PersonsSchema

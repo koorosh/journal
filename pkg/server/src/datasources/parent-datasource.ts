@@ -1,35 +1,23 @@
-import { DataSource } from 'apollo-datasource'
+import { Parent } from '../models'
+import { MongoDataSource } from '../db/mongo-datasource'
 
-import { Parent, PersonsModel, ParentsModel } from '../models'
-
-
-export class ParentDataSource extends DataSource {
-  async selectAll(): Promise<Array<Parent>> {
-    const parents = await ParentsModel.find(
-      {},
-      (err, records) => records.map(record => record.toObject())
-    )
-    return parents
-  }
-
-  async findById(id: string): Promise<Parent> {
-    const parent = await ParentsModel.findById(id).exec()
-    return parent.toObject()
+export class ParentDataSource extends MongoDataSource<Parent> {
+  constructor() {
+    super('parents');
   }
 
   async create(firstName: string, lastName: string, middleName: string, phones: string, groupId?: string): Promise<Parent> {
-    const personModel = await PersonsModel.create({
+    const personModel = await this.model.create({
       firstName,
       lastName,
       middleName,
       phones
     })
 
-    const parentModel = new ParentsModel({
+    const parentModel = new this.model({
       person: personModel
     })
 
-    const parent = await parentModel.save()
-    return parent.toObject()
+    return parentModel.save()
   }
 }

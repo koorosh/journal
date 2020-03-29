@@ -2,13 +2,14 @@ import { Schema, model, Document, Types } from 'mongoose'
 import { Group } from './group'
 import { Teacher } from './teacher'
 import { Subject } from './subject'
+import { modelNames } from './model-names'
 
 const LessonsSchema = new Schema({
   order: { type: Number },
   date: { type: Date, default: Date.now },
-  group: { type: Schema.Types.ObjectId, ref: 'Groups' },
-  subject: { type: Schema.Types.ObjectId, ref: 'Subjects' },
-  teacher: { type: Schema.Types.ObjectId, ref: 'Teachers' },
+  group: { type: Schema.Types.ObjectId, ref: modelNames.groups },
+  subject: { type: Schema.Types.ObjectId, ref: modelNames.subjects },
+  teacher: { type: Schema.Types.ObjectId, ref: modelNames.teachers },
   lastAttendanceCheck: { type: Date },
 }, {
   toObject: {
@@ -50,4 +51,4 @@ export interface Lesson extends Document {
   lastAttendanceCheck?: Date
 }
 
-export const LessonsModel = model<Lesson>('Lessons', LessonsSchema)
+export default LessonsSchema

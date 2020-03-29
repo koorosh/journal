@@ -1,8 +1,8 @@
 import Router, { RouterContext } from 'koa-router'
 import bcrypt from 'bcrypt'
 
-import { UsersModel } from '../models'
 import { isAdmin, jwt } from '../middlewares'
+import { dbModelFactory, User, Organization } from '../models'
 
 const router = new Router({
   prefix: '/auth'
@@ -27,7 +27,20 @@ router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
     return
   }
 
-  const existsUserInDb = await UsersModel.exists({
+  const organizationsModel = dbModelFactory<Organization>('organizations')
+  const organization = await organizationsModel.findById(organizationId)
+
+  if (!organization) {
+    ctx.status = 400
+    ctx.body = {
+      error: `Unknown organization.`
+    }
+    return
+  }
+
+  const usersModel = dbModelFactory<User>('users', organization.tenantId)
+
+  const existsUserInDb = await usersModel.exists({
     phone,
     organization: organizationId,
   })
@@ -40,7 +53,7 @@ router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  const user = new UsersModel({
+  const user = new usersModel({
     organization: organizationId,
     password: hashedPassword,
     phone,

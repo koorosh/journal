@@ -1,8 +1,9 @@
 import { Schema, model, Document, Types } from 'mongoose'
 import { Person } from './person'
+import { modelNames } from './model-names'
 
 const ParentsSchema = new Schema({
-  person: {type: Schema.Types.ObjectId, ref: 'Persons'}
+  person: {type: Schema.Types.ObjectId, ref: modelNames.persons }
 })
 
 function populateModel() {
@@ -24,4 +25,4 @@ export interface Parent extends Document {
   person: Person
 }
 
-export const ParentsModel = model<Parent>('Parents', ParentsSchema)
+export default ParentsSchema

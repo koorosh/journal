@@ -10,7 +10,7 @@ import SubjectsSchema from './subject'
 import TeachersSchema from './teacher'
 import UsersSchema from './user'
 
-import { getConnectionByTenantId } from '../db'
+import { getConnectionByTenantId, SYSTEM_TENANT_ID } from '../db'
 import { Models } from './models'
 
 const schemas = new Map<Models, Schema>([
@@ -33,7 +33,7 @@ export const initModels = (tenantId: string = 'journal') => {
   schemas.forEach((schema, name) => connection.model(name, schema))
 }
 
-export const dbModelFactory = <T extends Document>(modelName: Models, tenantId: string = 'journal'): Model<T> => {
+export const dbModelFactory = <T extends Document>(modelName: Models, tenantId: string = SYSTEM_TENANT_ID): Model<T> => {
   const connection = getConnectionByTenantId(tenantId)
   if (!connectionsCache.has(tenantId)) {
     schemas.forEach((schema, name) => connection.model(name, schema))

@@ -1,10 +1,10 @@
 import mongoose, { Connection, ConnectionOptions } from 'mongoose'
 
-export const SYSTEM_TENANT_ID = 'journal'
-
 const host = process.env.MONGODB_HOST
 const user = process.env.MONGODB_USER
 const password = process.env.MONGODB_PASSWORD
+const uriFormat = process.env.MONGODB_URI_FORMAT
+export const SYSTEM_TENANT_ID = process.env.MONGODB_DATABASE
 
 const dbOptions: ConnectionOptions = {
   useNewUrlParser: true,
@@ -19,7 +19,7 @@ export const getConnectionByTenantId = (tenantId: string = SYSTEM_TENANT_ID) => 
   if (connectionsCache.has(tenantId)) {
     return connectionsCache.get(tenantId)
   }
-  const connection = mongoose.createConnection(`mongodb://${user}:${password}@${host}/${tenantId}`, dbOptions)
+  const connection = mongoose.createConnection(`${uriFormat}://${user}:${password}@${host}/${tenantId}`, dbOptions)
   connectionsCache.set(tenantId, connection)
   return connection
 }

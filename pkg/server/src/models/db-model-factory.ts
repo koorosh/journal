@@ -3,7 +3,6 @@ import AttendanceSchema from './attendance'
 import GroupsSchema from './group'
 import LessonsSchema from './lesson'
 import OrganizationsSchema from './organization'
-import ParentsSchema from './parent'
 import PersonsSchema from './person'
 import StudentsSchema from './student'
 import SubjectsSchema from './subject'
@@ -18,7 +17,6 @@ const schemas = new Map<Models, Schema>([
   ['groups', GroupsSchema],
   ['lessons', LessonsSchema],
   ['organizations', OrganizationsSchema],
-  ['parents', ParentsSchema],
   ['persons', PersonsSchema],
   ['students', StudentsSchema],
   ['subjects', SubjectsSchema],
@@ -28,7 +26,7 @@ const schemas = new Map<Models, Schema>([
 
 const connectionsCache = new Map<string, boolean>()
 
-export const initModels = (tenantId: string = 'journal') => {
+export const initModels = (tenantId: string = SYSTEM_TENANT_ID) => {
   const connection = getConnectionByTenantId(tenantId)
   schemas.forEach((schema, name) => connection.model(name, schema))
 }

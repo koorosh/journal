@@ -6,12 +6,12 @@ export class PersonDataSource extends MongoDataSource<Person> {
     super('persons');
   }
 
-  async create(firstName: string, lastName: string, middleName: string, phones: string[], parents?: string[]): Promise<Person> {
+  async create(firstName: string, lastName: string, middleName: string, phones: string[]): Promise<Person> {
     const personModel = new this.model({
       firstName,
       lastName,
+      middleName,
       phones,
-      parents,
     })
 
     return  personModel.save()

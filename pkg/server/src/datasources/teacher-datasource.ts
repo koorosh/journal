@@ -22,6 +22,9 @@ export class TeacherDataSource extends MongoDataSource<Teacher> {
 
   async findTeacherByUserId(userId: string): Promise<Teacher> {
     const user = await this.context.dataSources.users.model.findById(userId)
+    if (!user) {
+      return null
+    }
     return this.model.findOne({
       person: user.person
     })

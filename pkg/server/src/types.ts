@@ -3,7 +3,6 @@ import { RouterContext } from 'koa-router'
 import {
   AttendanceDataSource,
   GroupDataSource,
-  ParentDataSource,
   StudentDataSource,
   SubjectDataSource,
   PersonDataSource,
@@ -19,7 +18,6 @@ export interface DataSourceMap {
   groups: GroupDataSource,
   subjects: SubjectDataSource,
   attendance: AttendanceDataSource,
-  parents: ParentDataSource,
   persons: PersonDataSource,
   lessons: LessonDataSource,
   teachers: TeacherDataSource,

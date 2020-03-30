@@ -1,6 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose'
-import { Parent } from './parent'
-import { modelNames } from './model-names'
+import { Schema, Document, Types } from 'mongoose'
 
 export interface Person extends Document {
   id: string
@@ -8,7 +6,6 @@ export interface Person extends Document {
   lastName: string
   middleName: string
   phones: string[]
-  parents?: Parent[]
 }
 
 const PersonsSchema = new Schema({
@@ -16,7 +13,6 @@ const PersonsSchema = new Schema({
   lastName: { type: String },
   middleName: { type: String },
   phones: [{ type: String }],
-  parents: [{ type: Schema.Types.ObjectId, ref: modelNames.parents }],
 }, {
   toObject: {
     virtuals: true,

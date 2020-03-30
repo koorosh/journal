@@ -10,6 +10,7 @@ export class OrganizationDataSource extends MongoDataSource<Organization> {
     if (!this.context.user.roles.includes('god')) {
       return Promise.reject(new Error('Restricted area.'))
     }
+
     const organizationModel = new this.model(data)
     return organizationModel.save()
   }

@@ -5,7 +5,6 @@ export const modelNames: Record<Models, string> = {
   'groups': 'groups',
   'lessons': 'lessons',
   'organizations': 'organizations',
-  'parents': 'parents',
   'persons': 'persons',
   'students': 'students',
   'subjects': 'subjects',

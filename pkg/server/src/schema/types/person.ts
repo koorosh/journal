@@ -10,7 +10,7 @@ export const typeDef = gql`
     lastName: String!
     middleName: String!
     phone: String
-    parents: [Parent]
+    parents: [Person]
   }
   
   extend type Query {

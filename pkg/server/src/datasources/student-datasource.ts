@@ -25,22 +25,14 @@ export class StudentDataSource extends MongoDataSource<Student> {
     groupId?: string,
     parentPersons?: Person[]
   ): Promise<Student> {
-    const { persons: Persons, parents: Parents, groups: Groups} = this.context.dataSources
+    const { persons: Persons, groups: Groups} = this.context.dataSources
 
     // Iterate over persons and update with the same values to ensure that we
     // do not insert any duplicates
     const parentPersonsData = await Promise.all((parentPersons || []).map(p =>
       Persons.model.findOneAndUpdate(p, p, { new: true, upsert: true })
     ))
-    const parentModels = parentPersonsData.map(person =>
-      Parents.model.findOneAndUpdate(
-        { person },
-        { person },
-        { new: true, upsert: true }
-      )
-    )
-
-    const parents = await Promise.all(parentModels)
+    const parents = await Promise.all(parentPersonsData)
 
     const personModel = await Persons.model.create({
       firstName,

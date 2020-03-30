@@ -3,7 +3,6 @@ export type Models =
   'groups' |
   'lessons' |
   'organizations' |
-  'parents' |
   'persons' |
   'students' |
   'subjects' |

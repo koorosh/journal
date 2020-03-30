@@ -9,7 +9,7 @@ const router = new Router({
   prefix: '/auth'
 })
 
-router.get('/root-user', async (ctx: RouterContext) => {
+router.get('/root-user',  async (ctx: RouterContext) => {
   const { phone, password } = ctx.request.body
   if (!phone || !password) {
     ctx.status = 400
@@ -23,6 +23,14 @@ router.get('/root-user', async (ctx: RouterContext) => {
   const user = await usersModel.findOne({
     phone,
   })
+
+  if (!user) {
+    ctx.status = 400
+    ctx.body = {
+      error: `Cannot find user with provided credentials`
+    }
+    return
+  }
 
   ctx.status = 200
   ctx.response.body = {

@@ -26,7 +26,6 @@ router.post('/login', async (ctx: RouterContext) => {
 
   const user = await usersModel.findOne({
     phone,
-    organization: organizationId,
   })
 
   if (!user) {
@@ -60,7 +59,7 @@ router.post('/login', async (ctx: RouterContext) => {
     token: jsonwebtoken.sign({
       id: user.id,
       roles: user.roles,
-      tenantId: organizationId,
+      tenantId,
     }, process.env.JWT_SECRET),
     requirePasswordChange: user.status === 'initiated',
   }

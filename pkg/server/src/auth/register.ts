@@ -17,9 +17,9 @@ const router = new Router({
  * - User is required to change password with first login
 * */
 router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
-  const { phone, password, organizationId, roles } = ctx.request.body
+  const { phone, password, organizationId, roles, firstName, lastName, middleName } = ctx.request.body
 
-  if (!phone || !password || !organizationId) {
+  if (!phone || !password || !organizationId || !firstName || !lastName || !middleName) {
     ctx.status = 400
     ctx.body = {
       error: `Expected an object with phone, password, and organizationId but got: ${ctx.request.body}`
@@ -51,6 +51,16 @@ router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
     return
   }
 
+  const personModel = dbModelFactory<User>('persons', organization.tenantId)
+  const person = new personModel({
+    firstName,
+    lastName,
+    middleName,
+    phones: [phone],
+  })
+
+  const personDocument = await person.save()
+
   const hashedPassword = await bcrypt.hash(password, 10)
 
   const user = new usersModel({
@@ -60,6 +70,7 @@ router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
     roles,
     status: 'initiated',
     isActive: true,
+    person: personDocument,
   })
 
   await user.save()

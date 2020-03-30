@@ -1,11 +1,9 @@
-import { DataSource } from 'apollo-datasource'
+import { Lesson } from '../models'
+import { MongoDataSource } from '../db/mongo-datasource'
 
-import { Lesson, LessonsModel } from '../models'
-
-export class LessonDataSource extends DataSource {
-  async findById(id: string): Promise<Lesson> {
-    const lesson = await LessonsModel.findById(id)
-    return lesson.toObject()
+export class LessonDataSource extends MongoDataSource<Lesson> {
+  constructor() {
+    super('lessons');
   }
 
   async create(
@@ -16,7 +14,7 @@ export class LessonDataSource extends DataSource {
     teacherId: string
   ): Promise<Lesson> {
 
-    const lessonModel = new LessonsModel({
+    const lessonModel = new this.model({
       date,
       order,
       subject: subjectId,
@@ -24,16 +22,14 @@ export class LessonDataSource extends DataSource {
       teacher: teacherId,
     })
 
-    const lesson = await lessonModel.save()
-    return lesson.toObject()
+    return lessonModel.save()
   }
 
   async findLessonsByTeacherAndDate(teacherId: string, date: string): Promise<Lesson[]> {
-    const lessons = await LessonsModel.find({
+    const lessons = await this.model.find({
       teacher: teacherId,
       date,
-    },
-      (err, records) => records.map(record => record.toObject()))
+    })
     return lessons
   }
 }

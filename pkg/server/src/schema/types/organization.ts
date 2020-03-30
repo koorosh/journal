@@ -6,7 +6,8 @@ export const typeDef = gql`
   type Organization {
     id: ID!
     name: String!
-    adminUser: User!
+    shortName: String!
+    tenantId: String!
   }
   extend type Query {
     organizationById(id: ID!): Organization
@@ -15,7 +16,8 @@ export const typeDef = gql`
   extend type Mutation {
     createOrganization(
       name: String!
-      adminUserId: ID!
+      shortName: String!
+      tenantId: String!
     ): Organization
   }
 `
@@ -26,7 +28,8 @@ export const resolvers: GraphQLResolverMap<Context> = {
     organizations: (_, __, { dataSources }) => dataSources.organizations.selectAll(),
   },
   Mutation: {
-    createOrganization: (_, { name, adminUserId }, { dataSources }) =>
-      dataSources.organizations.create(name, adminUserId),
+    createOrganization: async (_, data, { dataSources }) => {
+      await dataSources.organizations.create(data)
+    },
   }
 }

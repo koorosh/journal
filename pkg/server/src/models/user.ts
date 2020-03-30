@@ -1,5 +1,6 @@
-import { Schema, model, Document, Types } from 'mongoose'
+import { Schema, Document, Types } from 'mongoose'
 import { Person } from './person'
+import { modelNames } from './model-names'
 import { Organization } from './organization'
 
 export type UserRoles = 'principal' | 'teacher' | 'groupManager' | 'god' | 'admin'
@@ -13,7 +14,7 @@ export interface User extends Document {
   organization: Organization
   isActive: boolean
   status: UserStatuses
-  person?: Person
+  person?: Person | string
 }
 
 const UsersSchema = new Schema({
@@ -26,23 +27,12 @@ const UsersSchema = new Schema({
   roles: [{ type: String }],
   status: { type: String },
   isActive: [{ type: Boolean }],
-  organization: { type: Schema.Types.ObjectId, ref: 'Organizations' },
-  person: { type: Schema.Types.ObjectId, ref: 'Persons' },
+  person: { type: Schema.Types.ObjectId, ref: modelNames.persons },
 }, {
   toObject: {
     virtuals: true,
   }
 })
-
-UsersSchema.index({ person: 1 }, { unique: true })
-
-function populateModel() {
-  this.populate('person')
-}
-
-UsersSchema.pre('find', populateModel)
-UsersSchema.pre('findOne', populateModel)
-UsersSchema.pre('findOneAndUpdate', populateModel)
 
 UsersSchema.virtual('id')
   .get(function() { return this._id.toString() })
@@ -50,4 +40,4 @@ UsersSchema.virtual('id')
     this._id = Types.ObjectId(id)
   })
 
-export const UsersModel = model<User>('Users', UsersSchema)
+export default UsersSchema

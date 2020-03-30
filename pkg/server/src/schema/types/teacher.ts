@@ -36,8 +36,10 @@ export const resolvers: GraphQLResolverMap<Context> = {
       dataSources.teachers.findTeacherByUserId(user.id),
   },
   Mutation: {
-    createTeacher: (_, { firstName, lastName, middleName, phones }, { dataSources }) =>
-      dataSources.teachers.create(firstName, lastName, middleName, phones),
+    createTeacher: async (_, { firstName, lastName, middleName, phones }, { dataSources }) => {
+      const person = await dataSources.persons.create(firstName, lastName, middleName, phones)
+      return dataSources.teachers.createAsPerson(person.id)
+    },
     createTeacherAsPerson: (_, { personId }, { dataSources }) =>
       dataSources.teachers.createAsPerson(personId),
   },

@@ -1,8 +1,8 @@
 import Router, { RouterContext } from 'koa-router'
 import bcrypt from 'bcrypt'
 
-import { UsersModel } from '../models'
 import { isAdmin, jwt } from '../middlewares'
+import { dbModelFactory, User, Organization } from '../models'
 
 const router = new Router({
   prefix: '/auth'
@@ -17,9 +17,9 @@ const router = new Router({
  * - User is required to change password with first login
 * */
 router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
-  const { phone, password, organizationId, roles } = ctx.request.body
+  const { phone, password, organizationId, roles, firstName, lastName, middleName } = ctx.request.body
 
-  if (!phone || !password || !organizationId) {
+  if (!phone || !password || !organizationId || !firstName || !lastName || !middleName) {
     ctx.status = 400
     ctx.body = {
       error: `Expected an object with phone, password, and organizationId but got: ${ctx.request.body}`
@@ -27,7 +27,20 @@ router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
     return
   }
 
-  const existsUserInDb = await UsersModel.exists({
+  const organizationsModel = dbModelFactory<Organization>('organizations')
+  const organization = await organizationsModel.findById(organizationId)
+
+  if (!organization) {
+    ctx.status = 400
+    ctx.body = {
+      error: `Unknown organization.`
+    }
+    return
+  }
+
+  const usersModel = dbModelFactory<User>('users', organization.tenantId)
+
+  const existsUserInDb = await usersModel.exists({
     phone,
     organization: organizationId,
   })
@@ -38,15 +51,26 @@ router.post('/register', jwt, isAdmin, async (ctx: RouterContext) => {
     return
   }
 
+  const personModel = dbModelFactory<User>('persons', organization.tenantId)
+  const person = new personModel({
+    firstName,
+    lastName,
+    middleName,
+    phones: [phone],
+  })
+
+  const personDocument = await person.save()
+
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  const user = new UsersModel({
+  const user = new usersModel({
     organization: organizationId,
     password: hashedPassword,
     phone,
     roles,
     status: 'initiated',
     isActive: true,
+    person: personDocument,
   })
 
   await user.save()

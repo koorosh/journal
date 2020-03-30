@@ -8,7 +8,6 @@ import { Kind } from 'graphql/language'
 import { typeDef as Attendance, resolvers as AttendanceResolvers } from './types/attendance'
 import { typeDef as Group, resolvers as GroupResolvers } from './types/group'
 import { typeDef as Lesson, resolvers as LessonResolvers } from './types/lesson'
-import { typeDef as Parent, resolvers as ParentResolvers } from './types/parent'
 import { typeDef as Person, resolvers as PersonResolvers } from './types/person'
 import { typeDef as Student, resolvers as StudentResolvers } from './types/student'
 import { typeDef as Subject, resolvers as SubjectResolvers } from './types/subject'
@@ -63,7 +62,6 @@ export default makeExecutableSchema({
     Attendance,
     Group,
     Lesson,
-    Parent,
     Person,
     Student,
     Subject,
@@ -76,7 +74,6 @@ export default makeExecutableSchema({
     AttendanceResolvers,
     GroupResolvers,
     LessonResolvers,
-    ParentResolvers,
     PersonResolvers,
     StudentResolvers,
     SubjectResolvers,

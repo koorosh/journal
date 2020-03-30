@@ -1,20 +1,21 @@
 version: '3.7'
 
 services:
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
-    environment:
-      RABBITMQ_ERLANG_COOKIE: SWQOKODSQALRPCLNMEQG
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-      RABBITMQ_DEFAULT_VHOST: /
-    ports:
-      - 15672:15672
-      - 5672:5672
+#  rabbitmq:
+#    image: rabbitmq:3-management-alpine
+#    container_name: rabbitmq
+#    restart: "no"
+#    environment:
+#      RABBITMQ_ERLANG_COOKIE: SWQOKODSQALRPCLNMEQG
+#      RABBITMQ_DEFAULT_USER: guest
+#      RABBITMQ_DEFAULT_PASS: guest
+#      RABBITMQ_DEFAULT_VHOST: /
+#    ports:
+#      - 15672:15672
+#      - 5672:5672
   mongo:
     image: mongo
-    restart: on-failure
+    restart: "no"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
@@ -29,7 +30,7 @@ services:
 
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: "no"
     ports:
       - 8081:8081
     environment:

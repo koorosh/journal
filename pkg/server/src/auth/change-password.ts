@@ -1,8 +1,8 @@
 import Router, { RouterContext } from 'koa-router'
 import bcrypt from 'bcrypt'
 
-import { UsersModel } from '../models'
 import jwt from '../middlewares/jwt'
+import { dbModelFactory, User } from '../models'
 
 const router = new Router({
   prefix: '/auth'
@@ -10,11 +10,12 @@ const router = new Router({
 
 router.post('/changepassword', jwt, async (ctx: RouterContext) => {
   const { password, newPassword, confirmPassword } = ctx.request.body
+  const { user } = ctx.state
 
   if (!password || !newPassword || !confirmPassword) {
     ctx.status = 400
     ctx.body = {
-      error: `Expected oldPassword, password, confirmPassword, and organizationId fields.`
+      error: `Expected oldPassword, password, and confirmPassword fields.`
     }
     return
   }
@@ -27,9 +28,19 @@ router.post('/changepassword', jwt, async (ctx: RouterContext) => {
     return
   }
 
-  const user = await UsersModel.findById(ctx.state.user.id)
+  if (!user.tenantId) {
+    ctx.status = 400
+    ctx.body = {
+      error: `User does not belong to any organization`
+    }
+    return
+  }
 
-  if (!await bcrypt.compare(password, user.password)) {
+  const UsersModel = await dbModelFactory<User>('users', user.tenantId)
+
+  const userModel = await UsersModel.findById(user.id)
+
+  if (!await bcrypt.compare(password, userModel.password)) {
     ctx.status = 401
     ctx.body = {
       error: `Old password is incorrect.`
@@ -37,9 +48,9 @@ router.post('/changepassword', jwt, async (ctx: RouterContext) => {
     return
   }
 
-  user.password = await bcrypt.hash(newPassword, 10)
-  user.status = 'active'
-  await user.save()
+  userModel.password = await bcrypt.hash(newPassword, 10)
+  userModel.status = 'active'
+  await userModel.save()
 
   ctx.response.status = 200
 })

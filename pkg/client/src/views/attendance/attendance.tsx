@@ -123,12 +123,11 @@ export const Attendance: React.FC = () => {
       history.push({
         ...history.location,
         pathname: '/today',
-        search: searchParams.toString()
+        search: searchParams.toString(),
       })
     } else {
       history.push('/today')
     }
-
   }, [
     lesson,
     selectedStudents,

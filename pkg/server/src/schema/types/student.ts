@@ -4,7 +4,7 @@ import { Context } from '../../types'
 
 export const typeDef = gql`
   
-  input ParentPersonInput {
+  input ParentInput {
     firstName: String!
     lastName: String!
     middleName: String!
@@ -17,13 +17,14 @@ export const typeDef = gql`
     middleName: String!
     phones: [String]
     groupId: ID
-    parents: [ParentPersonInput]
+    parents: [ParentInput]
   }
 
   type Student {
     id: ID!
     person: Person!
     group: Group
+    parents: [Person]
   }
   
   extend type Query {
@@ -38,7 +39,7 @@ export const typeDef = gql`
       middleName: String!
       phones: [String]
       groupId: ID
-      parents: [ParentPersonInput]
+      parents: [ParentInput]
     ): Student
 
     createStudents(

@@ -1,21 +1,16 @@
-import { DataSource } from 'apollo-datasource'
-import { User, UsersModel } from '../models'
+import { User } from '../models'
+import { MongoDataSource } from '../db/mongo-datasource'
 
-export class UserDataSource extends DataSource {
-  async selectAll(): Promise<Array<User>> {
-    return UsersModel.find({})
-  }
-
-  async findById(id: string): Promise<User> {
-    return UsersModel.findById(id)
+export class UserDataSource extends MongoDataSource<User> {
+  constructor() {
+    super('users');
   }
 
   async create(phone: string, password: string): Promise<User> {
-    const userModel = new UsersModel({
+    const userModel = new this.model({
       password,
       phone
     })
-    const user = await userModel.save()
-    return user.toObject()
+    return userModel.save()
   }
 }

@@ -89,7 +89,7 @@ export const Lesson: React.FC = () => {
 
   const handleAttendanceClick = useCallback(
     () => history.push(`/lesson/${lessonId}/attendance`),
-    [params])
+    [lessonId, history])
 
   let commentText
 
@@ -103,20 +103,20 @@ export const Lesson: React.FC = () => {
           variant="body1"
           className={classes.filledComment}
         >
-          ✅ Проведено
+          <span role="img" aria-label="Проведено">✅</span> Проведено
         </Typography>
         <span className={classes.verticalDivider}>{'|'}</span>
         <Typography component="span" variant="body1">{`${attendances?.length} відсутні`}</Typography>
       </>
     )
-  } else if (isToday(lesson?.date|| new Date()) || !isBefore((lesson?.date || new Date()), new Date)) {
+  } else if (isToday(lesson?.date|| new Date()) || !isBefore((lesson?.date || new Date()), new Date())) {
     commentText = (
       <Typography
         component="span"
         variant="subtitle2"
         className={classes.notFilledComment}
       >
-        🟠 Не заповнено
+        <span role="img" aria-label="Не заповнено">🟠</span> Не заповнено
       </Typography>
     )
   } else {
@@ -126,7 +126,7 @@ export const Lesson: React.FC = () => {
         variant="subtitle2"
         className={classes.notFilledPastComment}
       >
-        🔴 Не заповнено
+        <span role="img" aria-label="Не заповнено">🔴</span> Не заповнено
       </Typography>
     )
   }

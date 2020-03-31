@@ -2,19 +2,20 @@ import { times, flatMapDeep } from 'lodash'
 import faker from 'faker'
 import { eachDayOfInterval, isWeekend, sub, add } from 'date-fns'
 
-import { connectToDb } from '../src/db'
 import {
-  StudentsModel,
-  PersonsModel,
-  TeachersModel,
-  ParentsModel,
-  GroupsModel,
-  LessonsModel,
-  SubjectsModel,
-  Group, Teacher, Subject
+  Group, Teacher, Subject, dbModelFactory, Person, Student, Lesson
 } from '../src/models'
 
-const url = process.env.MONGODB_URI
+const tenantId = 'test-tenant-id'
+
+// TODO (koorosh): Add Organization and User data
+
+const SubjectsModel = dbModelFactory<Subject>('subjects', tenantId)
+const PersonsModel = dbModelFactory<Person>('persons', tenantId)
+const StudentsModel = dbModelFactory<Student>('students', tenantId)
+const GroupsModel = dbModelFactory<Group>('groups', tenantId)
+const TeachersModel = dbModelFactory<Teacher>('teachers', tenantId)
+const LessonsModel = dbModelFactory<Lesson>('lessons', tenantId)
 
 const seed = async () => {
   const groupYears = [2020, 2019, 2018, 2017, 2016, 2015]
@@ -112,15 +113,6 @@ const seed = async () => {
 
   const groups = await Promise.all(groupModels)
 
-  const parentModels = parentPersons.map((person) => {
-    const parentModel = new ParentsModel({
-      person
-    })
-    return parentModel.save()
-  })
-
-  const parents = await Promise.all(parentModels)
-
   const teacherModels = teacherPersons.map((person) => {
     const teacherModel = new TeachersModel({
       person,
@@ -133,6 +125,7 @@ const seed = async () => {
 
 
   // Lessons from 2 last weeks up for today
+  // TODO (koorosh) Extend period to future dates.
   const today = new Date()
   const twoMonthsAgo = sub(today, { months: 2 })
   const twoMonthsNext = add(today, { months: 2 })
@@ -156,8 +149,4 @@ const seed = async () => {
   const lessons = await LessonsModel.collection.insertMany(flatMapDeep(lessonModels))
 }
 
-connectToDb(url)
-  .then(async (connection) => {
-    await seed()
-    return connection.disconnect()
-  })
+seed().then(() => console.log('Done!'))

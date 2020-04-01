@@ -11,6 +11,7 @@ import { Layout } from './layout'
 import { Reports } from './views/reports'
 import { ChangePassword, Login } from './views/account'
 import { SettingsView } from './views/settings'
+import { GroupDashboard, Groups } from './views/groups'
 
 const App: React.FC = () => {
   return (
@@ -19,7 +20,7 @@ const App: React.FC = () => {
         <Layout>
           <Switch>
             <Redirect exact from="/" to="/today" />
-            <Route exact path="/reports/attendance">
+            <Route exact path="/reports/attendance/:groupId">
               <AttendanceReport />
             </Route>
             <Route exact path="/lesson/:lessonId/attendance">
@@ -48,6 +49,16 @@ const App: React.FC = () => {
             </Route>
             <Route exact path="/settings">
               <SettingsView />
+            </Route>
+            <Route path="/groups">
+              <Switch>
+                <Route exact path="/groups">
+                  <Groups />
+                </Route>
+                <Route exact path="/groups/:groupId">
+                  <GroupDashboard />
+                </Route>
+              </Switch>
             </Route>
           </Switch>
         </Layout>

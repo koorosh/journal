@@ -21,17 +21,7 @@ export const MainDrawer: React.FC<MainDrawerProps> = (props) => {
     history.push('/')
   }, [])
 
-  const goHome = useCallback(async () => {
-    history.push('/')
-  }, [])
-
-  const goToAttendancesReport = useCallback(async () => {
-    history.push('/reports')
-  }, [])
-
-  const goToSettings = useCallback(async () => {
-    history.push('/settings')
-  }, [])
+  const navigateTo = useCallback((path: string) => () => history.push(path), [])
 
   return (
     <Drawer
@@ -39,16 +29,20 @@ export const MainDrawer: React.FC<MainDrawerProps> = (props) => {
       onClose={onClose}
     >
       <List>
-        <ListItem button onClick={goHome}>
+        <ListItem button onClick={navigateTo('/')}>
           <ListItemIcon><HomeIcon /></ListItemIcon>
           <ListItemText primary="Головна" />
         </ListItem>
-        <ListItem button onClick={goToAttendancesReport}>
+        <ListItem button onClick={navigateTo('/groups')}>
+          <ListItemIcon><PeopleIcon /></ListItemIcon>
+          <ListItemText primary="Класи" />
+        </ListItem>
+        <ListItem button onClick={navigateTo('/reports')}>
           <ListItemIcon><PeopleIcon /></ListItemIcon>
           <ListItemText primary="Відвідуванність" />
         </ListItem>
         <Divider />
-        <ListItem button onClick={goToSettings}>
+        <ListItem button onClick={navigateTo('/settings')}>
           <ListItemIcon><SettingsIcon /></ListItemIcon>
           <ListItemText primary="Налаштування" />
         </ListItem>

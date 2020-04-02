@@ -172,6 +172,7 @@ export const Home: React.FC = () => {
           <DateNavigator
             date={date}
             onChange={onDateChange}
+            hideWeekends={false}
           />
         </Toolbar>
       </Header>

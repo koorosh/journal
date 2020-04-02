@@ -1,11 +1,15 @@
-import React from 'react'
-import { Button, ButtonGroup, createStyles, makeStyles, Theme, Typography } from '@material-ui/core'
-import { format, startOfWeek, addDays, isSameDay, isWeekend } from 'date-fns'
+import React, { useCallback } from 'react'
+import { Button, ButtonGroup, createStyles, IconButton, makeStyles, Theme, Typography } from '@material-ui/core'
+import { format, startOfWeek, addDays, isSameDay, isWeekend, subDays } from 'date-fns'
 import { uk } from 'date-fns/locale'
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft'
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight'
 
 export interface DateNavigatorProps {
   date: Date
   onChange: (date: Date) => void
+  hideWeekends?: boolean
+  showNavigationButtons?: boolean
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,14 +33,23 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
+const workingDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт']
+const weekends = ['Сб', 'Нд']
+const daysOfWeek = [...workingDays, ...weekends]
 
 export const DateNavigator: React.FC<DateNavigatorProps> = (props: DateNavigatorProps) => {
   const classes = useStyles()
-  const { date, onChange } = props
+  const {
+    date,
+    onChange,
+    hideWeekends,
+    showNavigationButtons,
+  } = props
   const firstDayOfWeek = startOfWeek(date, { weekStartsOn: 1 })
-  const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд']
 
-  const weekDays = daysOfWeek.map((weekDayName, idx) => {
+  const calendarDays = hideWeekends ? workingDays : daysOfWeek
+
+  const weekDays = calendarDays.map((weekDayName, idx) => {
     const currDate = addDays(firstDayOfWeek, idx)
     const isSelectedDate = isSameDay(date, currDate)
     const todayIsWeekend = isWeekend(currDate)
@@ -58,16 +71,47 @@ export const DateNavigator: React.FC<DateNavigatorProps> = (props: DateNavigator
     )
   })
 
+  const handleNextDayClick = useCallback((direction: boolean) => () => {
+    let nextDay = addDays(date, direction ? 1 : -1)
+    if (hideWeekends && isWeekend(nextDay)) {
+      nextDay = addDays(nextDay, direction ? 2 : -2)
+    }
+    onChange(nextDay)
+  }, [date])
+
+  // const handlePrevDayClick = useCallback(() => {
+  //   onChange(subDays(date, 1))
+  // }, [date])
 
   return (
-    <ButtonGroup
-      className={classes.root}
-      classes={{
-        groupedTextHorizontal: classes.groupedTextHorizontal,
-      }}
-      variant="text"
-      color="primary">
-      {weekDays}
-    </ButtonGroup>
+    <>
+      {
+        showNavigationButtons &&
+        <IconButton onClick={handleNextDayClick(false)}>
+          <KeyboardArrowLeftIcon />
+        </IconButton>
+      }
+
+      <ButtonGroup
+        className={classes.root}
+        classes={{
+          groupedTextHorizontal: classes.groupedTextHorizontal,
+        }}
+        variant="text"
+        color="primary">
+        {weekDays}
+      </ButtonGroup>
+      {
+        showNavigationButtons &&
+        <IconButton onClick={handleNextDayClick(true)}>
+          <KeyboardArrowRightIcon/>
+        </IconButton>
+      }
+    </>
   )
+}
+
+DateNavigator.defaultProps = {
+  hideWeekends: true,
+  showNavigationButtons: false
 }

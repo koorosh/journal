@@ -24,6 +24,7 @@ import SendIcon from '@material-ui/icons/Send'
 import { DateNavigator } from '../../components/date-navigator'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 import { useUpdateAttendancesReason } from '../../hooks'
+import { Header } from '../../layout'
 
 interface AttendanceItem {
   attendanceIds: string[]
@@ -111,33 +112,16 @@ export const AttendanceReport: React.FC = () => {
 
   return (
     <>
-      <AppBar
-        variant="elevation"
-        color="primary"
-        position="fixed"
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="cancel"
-            onClick={history.goBack}
-          >
-            <CloseIcon/>
-          </IconButton>
-          <Typography className={classes.title} variant="h6" noWrap>
-            Відвідуваність
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Toolbar/>
+      <Header
+        title="Відвідуваність"
+      />
       <Toolbar
         className={classes.secondaryToolbar}
       >
         <DateNavigator
           date={date}
           onChange={onDateChange}
+          showNavigationButtons
         />
       </Toolbar>
       <List

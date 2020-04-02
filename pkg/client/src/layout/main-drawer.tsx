@@ -39,7 +39,7 @@ export const MainDrawer: React.FC<MainDrawerProps> = (props) => {
         </ListItem>
         <ListItem button onClick={navigateTo('/reports')}>
           <ListItemIcon><PeopleIcon /></ListItemIcon>
-          <ListItemText primary="Відвідуванність" />
+          <ListItemText primary="Звіти" />
         </ListItem>
         <Divider />
         <ListItem button onClick={navigateTo('/settings')}>

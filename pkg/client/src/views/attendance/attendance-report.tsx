@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 import { formatISO, parseISO } from 'date-fns'
 import { chain } from 'lodash'
 import {
@@ -23,8 +23,9 @@ import {
 import { useAttendanceBy } from '../../hooks/use-attendance-by'
 import { Attendance, AttendanceReason, Student } from '../../interfaces'
 import CloseIcon from '@material-ui/icons/Close'
-import SaveIcon from '@material-ui/icons/Save'
+import SendIcon from '@material-ui/icons/Send'
 import { DateNavigator } from '../../components/date-navigator'
+import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 
 interface AttendanceItem {
   items: Attendance[]
@@ -45,13 +46,15 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingTop: theme.spacing(),
       paddingBottom: theme.spacing(),
     },
+    sendMessageButton: {
+      margin: theme.spacing(1),
+    },
   }),
 )
 
 export const AttendanceReport: React.FC = () => {
   const history = useHistory()
   const classes = useStyles()
-  const [canSubmit] = useState<boolean>(false)
 
   const searchParams = new URLSearchParams(history.location.search)
 
@@ -59,7 +62,8 @@ export const AttendanceReport: React.FC = () => {
   const initialDate = dateStringFromParams ? parseISO(dateStringFromParams) : new Date()
   const [date, setDate] = useState<Date>(initialDate)
 
-  const groupId = searchParams.get('groupId') || undefined
+  const matchParams = useRouteMatch<{ groupId: string }>()
+  const { groupId } = matchParams.params
   const [attendances] = useAttendanceBy({ groupId, date })
 
   // TODO (koorosh): Refactor this to some reusable hook
@@ -76,21 +80,21 @@ export const AttendanceReport: React.FC = () => {
     })
   }, [history])
 
-  const onSubmit = React.useCallback(async () => {
-    // await createAttendances()
-    if (date) {
-      const dateIso = formatISO(date, { representation: 'date' })
-      const searchParams = new URLSearchParams(history.location.search)
-      searchParams.set('date', dateIso)
-      history.push({
-        ...history.location,
-        pathname: '/today',
-        search: searchParams.toString(),
-      })
-    } else {
-      history.push('/today')
-    }
-  }, [])
+
+  interface StudentReason {
+    [studentId: string]: number
+  }
+
+  const [studentReasons, setStudentReasons] = useState<StudentReason>({})
+
+  const handleReasonChange = useCallback((studentId: string) =>
+    (event: React.MouseEvent<HTMLElement>, reason: number) => {
+
+      setStudentReasons((prevState => ({
+        ...prevState,
+        [studentId]: reason,
+      })))
+    }, [])
 
   const rows = chain(attendances)
     .groupBy((item: Attendance) => item.student.id)
@@ -116,21 +120,14 @@ export const AttendanceReport: React.FC = () => {
             aria-label="cancel"
             onClick={history.goBack}
           >
-            <CloseIcon />
+            <CloseIcon/>
           </IconButton>
           <Typography className={classes.title} variant="h6" noWrap>
-            Звітний облік відвідуваності
+            Відвідуваність
           </Typography>
-          <Button
-            disabled={!canSubmit}
-            color="inherit"
-            onClick={onSubmit}
-            startIcon={<SaveIcon />}
-          >
-            Зберегти
-          </Button>
         </Toolbar>
       </AppBar>
+      <Toolbar/>
       <Toolbar
         className={classes.secondaryToolbar}
       >
@@ -142,40 +139,54 @@ export const AttendanceReport: React.FC = () => {
       <List
         hidden={rows.length === 0}
         component="nav"
-        aria-label="students list"
-        subheader={
-          <ListSubheader
-            component="div"
-          >
-            Учні
-          </ListSubheader>
-        }
       >
         {
           rows.map((attendanceItem, idx) => {
-            const { student, items, reason } = attendanceItem
+            const { student, items } = attendanceItem
+            const studentId = student.id
+            const skippedLessons = items.length
+            const reason = studentReasons[studentId]
             return (
               <>
-                <ListItem
-                  button
-                  key={idx}
-                >
+                <ListItem key={idx}>
                   <ListItemText
-                    primary={`${student.person.lastName} ${student.person.firstName}`}
+                    primary={`${student.person.lastName} ${student.person.firstName[0]}.`}
+                    secondary={
+                      <>
+                        <Typography>{skippedLessons}</Typography>
+
+                        {/*<Button*/}
+                        {/*  variant="contained"*/}
+                        {/*  color="primary"*/}
+                        {/*  className={classes.sendMessageButton}*/}
+                        {/*  endIcon={<SendIcon />}*/}
+                        {/*>*/}
+                        {/*  СМС*/}
+                        {/*</Button>*/}
+                      </>
+                    }
                   />
                   <ListItemSecondaryAction>
-                    <Typography>{items.length}</Typography>
-                    <Select defaultValue="">
-                      <MenuItem value="">
-                        <em></em>
-                      </MenuItem>
-                      <MenuItem value={1}>хв</MenuItem>
-                      <MenuItem value={2}>п/п</MenuItem>
-                      <MenuItem value={3}>б/п</MenuItem>
-                    </Select>
+
+                    <ToggleButtonGroup
+                      exclusive
+                      size="small"
+                      value={reason}
+                      onChange={handleReasonChange(studentId)}
+                    >
+                      <ToggleButton value="1">
+                        ХВ
+                      </ToggleButton>
+                      <ToggleButton value="2">
+                        П/П
+                      </ToggleButton>
+                      <ToggleButton value="3">
+                        Б/П
+                      </ToggleButton>
+                    </ToggleButtonGroup>
                   </ListItemSecondaryAction>
                 </ListItem>
-                <Divider />
+                <Divider/>
               </>
             )
           })

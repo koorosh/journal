@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core'
 import DateRangeIcon from '@material-ui/icons/DateRange'
 import { Header } from '../../layout'
 
 export const GroupDashboard: React.FC = () => {
   const history = useHistory()
-  const searchParams = new URLSearchParams(history.location.search)
-  const groupId = searchParams.get('groupId')
+  const matchParams = useRouteMatch<{ groupId: string}>()
+  const { groupId } = matchParams.params
   const onItemClick = useCallback((path: string) => () => history.push(path), [])
   return (
     <>

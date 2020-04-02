@@ -31,6 +31,11 @@ export const typeDef = gql`
       lessonId: ID!
       attendances: [CreateAttendancePayload]!
     ): [Attendance]
+
+    updateAttendancesReason(
+      attendanceIds: [ID]!
+      reason: String!
+    ): EmptyResponse
   }
 `
 
@@ -48,5 +53,7 @@ export const resolvers: GraphQLResolverMap<Context> = {
     createBatchAttendancesForLesson: (_, { attendances, lessonId }, { dataSources }) =>
       dataSources.attendance.removeByLessonId(lessonId)
         .then(() => dataSources.attendance.batchCreate(attendances)),
+    updateAttendancesReason: (_, { attendanceIds, reason }, { dataSources }) =>
+      dataSources.attendance.updateAttendancesReason(attendanceIds, reason)
   },
 }

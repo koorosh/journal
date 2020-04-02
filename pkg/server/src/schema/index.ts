@@ -25,6 +25,10 @@ const Query = gql`
   type Mutation {
     noop: Boolean
   }
+  
+  type EmptyResponse {
+    status: Boolean
+  }
 
   scalar Date
 `;

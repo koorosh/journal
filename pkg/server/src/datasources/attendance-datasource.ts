@@ -60,4 +60,16 @@ export class AttendanceDataSource extends MongoDataSource<Attendance> {
       lesson: lessonId
     })
   }
+
+  async updateAttendancesReason(attendanceIds: string[], reason: string) {
+    await this.model.updateMany(
+      { _id: {
+          $in: attendanceIds,
+        }},
+      { reason },
+    )
+    return {
+      status: true
+    }
+  }
 }

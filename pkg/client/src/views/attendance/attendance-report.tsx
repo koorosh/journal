@@ -4,7 +4,6 @@ import { formatISO, parseISO } from 'date-fns'
 import { chain } from 'lodash'
 import {
   AppBar,
-  Button,
   createStyles,
   Divider,
   IconButton,
@@ -12,9 +11,7 @@ import {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-  ListSubheader,
-  makeStyles, MenuItem,
-  Select,
+  makeStyles,
   Theme,
   Toolbar,
   Typography,
@@ -26,9 +23,10 @@ import CloseIcon from '@material-ui/icons/Close'
 import SendIcon from '@material-ui/icons/Send'
 import { DateNavigator } from '../../components/date-navigator'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
+import { useUpdateAttendancesReason } from '../../hooks'
 
 interface AttendanceItem {
-  items: Attendance[]
+  attendanceIds: string[]
   student: Student
   reason: AttendanceReason | null
 }
@@ -49,6 +47,11 @@ const useStyles = makeStyles((theme: Theme) =>
     sendMessageButton: {
       margin: theme.spacing(1),
     },
+    redButton: {
+      backgroundColor: theme.palette.error.main,
+      color: theme.palette.error.contrastText,
+      borderColor: theme.palette.error.contrastText,
+    }
   }),
 )
 
@@ -65,6 +68,7 @@ export const AttendanceReport: React.FC = () => {
   const matchParams = useRouteMatch<{ groupId: string }>()
   const { groupId } = matchParams.params
   const [attendances] = useAttendanceBy({ groupId, date })
+  const [ updateAttendancesReasons ] = useUpdateAttendancesReason()
 
   // TODO (koorosh): Refactor this to some reusable hook
   // parsing data from params and set date param back to
@@ -82,26 +86,26 @@ export const AttendanceReport: React.FC = () => {
 
 
   interface StudentReason {
-    [studentId: string]: number
+    [studentId: string]: AttendanceReason
   }
 
   const [studentReasons, setStudentReasons] = useState<StudentReason>({})
 
-  const handleReasonChange = useCallback((studentId: string) =>
-    (event: React.MouseEvent<HTMLElement>, reason: number) => {
-
+  const handleReasonChange = useCallback((studentId: string, attendanceIds: string[]) =>
+    async (event: React.MouseEvent<HTMLElement>, reason: AttendanceReason) => {
       setStudentReasons((prevState => ({
         ...prevState,
         [studentId]: reason,
       })))
+      await updateAttendancesReasons({ variables: { attendanceIds, reason }})
     }, [])
 
   const rows = chain(attendances)
     .groupBy((item: Attendance) => item.student.id)
-    .map((value: Attendance[]): AttendanceItem => ({
-      student: value[0].student,
+    .map((attendances: Attendance[]): AttendanceItem => ({
+      student: attendances[0].student,
       reason: null,
-      items: value,
+      attendanceIds: attendances.map(attendance => attendance.id),
     }))
     .value()
 
@@ -142,9 +146,9 @@ export const AttendanceReport: React.FC = () => {
       >
         {
           rows.map((attendanceItem, idx) => {
-            const { student, items } = attendanceItem
+            const { student, attendanceIds } = attendanceItem
             const studentId = student.id
-            const skippedLessons = items.length
+            const skippedLessons = attendanceIds.length
             const reason = studentReasons[studentId]
             return (
               <>
@@ -172,15 +176,15 @@ export const AttendanceReport: React.FC = () => {
                       exclusive
                       size="small"
                       value={reason}
-                      onChange={handleReasonChange(studentId)}
+                      onChange={handleReasonChange(studentId, attendanceIds)}
                     >
-                      <ToggleButton value="1">
+                      <ToggleButton value={'illness'}>
                         ХВ
                       </ToggleButton>
-                      <ToggleButton value="2">
+                      <ToggleButton value={'important'}>
                         П/П
                       </ToggleButton>
-                      <ToggleButton value="3">
+                      <ToggleButton value={'no_reason'}>
                         Б/П
                       </ToggleButton>
                     </ToggleButtonGroup>

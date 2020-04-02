@@ -104,7 +104,7 @@ export const AttendanceReport: React.FC = () => {
     .groupBy((item: Attendance) => item.student.id)
     .map((attendances: Attendance[]): AttendanceItem => ({
       student: attendances[0].student,
-      reason: null,
+      reason: attendances[0].reason || null,
       attendanceIds: attendances.map(attendance => attendance.id),
     }))
     .value()
@@ -146,29 +146,16 @@ export const AttendanceReport: React.FC = () => {
       >
         {
           rows.map((attendanceItem, idx) => {
-            const { student, attendanceIds } = attendanceItem
+            const { student, attendanceIds, reason: initReason } = attendanceItem
             const studentId = student.id
             const skippedLessons = attendanceIds.length
-            const reason = studentReasons[studentId]
+            const reason = studentReasons[studentId] || initReason
             return (
               <>
                 <ListItem key={idx}>
                   <ListItemText
                     primary={`${student.person.lastName} ${student.person.firstName[0]}.`}
-                    secondary={
-                      <>
-                        <Typography>{skippedLessons}</Typography>
-
-                        {/*<Button*/}
-                        {/*  variant="contained"*/}
-                        {/*  color="primary"*/}
-                        {/*  className={classes.sendMessageButton}*/}
-                        {/*  endIcon={<SendIcon />}*/}
-                        {/*>*/}
-                        {/*  СМС*/}
-                        {/*</Button>*/}
-                      </>
-                    }
+                    secondary={skippedLessons}
                   />
                   <ListItemSecondaryAction>
 

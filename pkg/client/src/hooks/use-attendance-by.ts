@@ -28,6 +28,7 @@ const ATTENDANCE_BY = gql`
           lastName
         }
       }
+      reason
     }
   }
 `

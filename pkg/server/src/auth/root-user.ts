@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jsonwebtoken from 'jsonwebtoken'
 
 import { isAdmin, jwt } from '../middlewares'
-import { dbModelFactory, User } from '../models'
+import { dbModelFactory, Person, User } from '../models'
 
 const router = new Router({
   prefix: '/auth'
@@ -42,14 +42,14 @@ router.get('/root-user',  async (ctx: RouterContext) => {
 })
 
 router.post('/root-user', async (ctx: RouterContext) => {
-  const { phone, password, roles, payload } = ctx.request.body
+  const { phone, password, roles, payload, firstName, lastName } = ctx.request.body
 
   if (payload !== process.env.ROOT_USER_KEY) {
     ctx.status = 406;
     return
   }
 
-  if (!phone || !password) {
+  if (!phone || !password || !firstName || !lastName) {
     ctx.status = 400
     ctx.body = {
       error: `Expected an object with phone and password but got: ${ctx.request.body}`
@@ -69,6 +69,14 @@ router.post('/root-user', async (ctx: RouterContext) => {
     return
   }
 
+  const personsModel = dbModelFactory<Person>('persons')
+
+  const person = new personsModel({
+    firstName,
+    lastName,
+    phones: [phone],
+  })
+
   const hashedPassword = await bcrypt.hash(password, 10)
 
   const user = new usersModel({
@@ -77,6 +85,7 @@ router.post('/root-user', async (ctx: RouterContext) => {
     roles,
     status: 'active',
     isActive: true,
+    person,
   })
 
   await user.save()

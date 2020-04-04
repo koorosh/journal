@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node -r ts-node/register -r dotenv/config ./src/index.ts",
+    "start-prod": "DOTENV_CONFIG_PATH=.env.production.local DOTENV_CONFIG_DEBUG=true npm start",
     "build": "tsc",
     "serve": "node ./src/index.js",
     "db:seed": "node -r ts-node/register -r dotenv/config ./test/seed-db.ts"
